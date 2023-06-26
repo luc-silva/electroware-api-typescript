@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { protectedRoute } from "../middleware/auth";
 import {
-    removeInstance,
-    createInstance,
-    getInstances,
-    getSingleInstance,
+  removeInstance,
+  createInstance,
+  getInstances,
+  getSingleInstance,
 } from "../controllers/productInstanceController";
 
 export const shoppingCartRouter = Router();

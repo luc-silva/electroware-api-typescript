@@ -14,24 +14,22 @@ import WishlistCollectionRepository from "../repositories/WishlistCollectionRepo
  * @throws throws error if receives a invalid ID or if a use has not been found.
  */
 export const getWishlistItems = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.user) {
-            response.status(400);
-            throw new Error("Dados Inválidos");
-        }
-
-        let user = await UserRepository.getUser(request.user.id);
-        if (!user) {
-            response.status(404);
-            throw new Error("Usuário não encontrado");
-        }
-
-        let items = await WishlistItemRepository.getWishlistItemsByUser(
-            user.id
-        );
-
-        response.status(200).json(items);
+  async (request: Request, response: Response) => {
+    if (!request.user) {
+      response.status(400);
+      throw new Error("Dados Inválidos");
     }
+
+    const user = await UserRepository.getUser(request.user.id);
+    if (!user) {
+      response.status(404);
+      throw new Error("Usuário não encontrado");
+    }
+
+    const items = await WishlistItemRepository.getWishlistItemsByUser(user.id);
+
+    response.status(200).json(items);
+  }
 );
 
 /**
@@ -42,57 +40,56 @@ export const getWishlistItems = asyncHandler(
  * @throws throws error if receives a invalid id, invalid body data, or if a user or collection has not been found.
  */
 export const createWishlistItem = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.user || !request.body) {
-            response.status(400);
-            throw new Error("Dados Inválidos.");
-        }
-        let { product, group } = request.body;
-        //add validator
-
-        let user = await UserRepository.getUser(request.user.id);
-        if (!user) {
-            response.status(404);
-            throw new Error("Usuário não encontrado.");
-        }
-
-        let productFound = await ProductRepository.getProductDetails(product);
-        if (!productFound) {
-            response.status(404);
-            throw new Error("Produto não encontrado.");
-        }
-
-        if (productFound.owner === user.id) {
-            response.status(400);
-            throw new Error("Não é possivel adicionar o próprio produto.");
-        }
-
-        let collection = await WishlistCollectionRepository.getCollection(
-            group
-        );
-        if (!collection) {
-            response.status(404);
-            throw new Error("Coleção não encontrada.");
-        }
-
-        let alreadyAddedToCollection =
-            await WishlistItemRepository.getWishlistItemByUserProductAndCollection(
-                user.id,
-                product,
-                collection.id
-            );
-        if (alreadyAddedToCollection) {
-            response.status(400);
-            throw new Error("Produto já adicionado à coleção selecionada.");
-        }
-
-        await WishlistItemRepository.createWishlistItem(user.id, {
-            product: productFound.id,
-            group: collection.id,
-        });
-
-        response.status(201).json({ message: "Adicionado à lista." });
+  async (request: Request, response: Response) => {
+    if (!request.user || !request.body) {
+      response.status(400);
+      throw new Error("Dados Inválidos.");
     }
+    const { product, group } = request.body;
+    //add validator
+
+    const user = await UserRepository.getUser(request.user.id);
+    if (!user) {
+      response.status(404);
+      throw new Error("Usuário não encontrado.");
+    }
+
+    const productFound = await ProductRepository.getProductDetails(product);
+    if (!productFound) {
+      response.status(404);
+      throw new Error("Produto não encontrado.");
+    }
+
+    if (productFound.owner === user.id) {
+      response.status(400);
+      throw new Error("Não é possivel adicionar o próprio produto.");
+    }
+
+    const collection = await WishlistCollectionRepository.getCollection(group);
+    if (!collection) {
+      response.status(404);
+      throw new Error("Coleção não encontrada.");
+    }
+
+    const alreadyAddedToCollection =
+      await WishlistItemRepository.getWishlistItemByUserProductAndCollection(
+        user.id,
+        product,
+        collection.id
+      );
+    if (alreadyAddedToCollection) {
+      response.status(400);
+      throw new Error("Produto já adicionado à coleção selecionada.");
+    }
+
+    await WishlistItemRepository.createWishlistItem(user.id, {
+      id: productFound.id,
+      product: productFound.id,
+      group: collection.id,
+    });
+
+    response.status(201).json({ message: "Adicionado à lista." });
+  }
 );
 
 /**
@@ -102,32 +99,32 @@ export const createWishlistItem = asyncHandler(
  * @throws throws error if receives a invalid id, invalid body data, or if a use has not been found.
  */
 export const removeWishlistItem = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.user|| !request.params) {
-            response.status(400);
-            throw new Error("Dados Inválidos");
-        }
-        let { id } = request.params;
-
-        let wishlistItem = await WishlistItemRepository.getWishlistItem(id);
-        if (!wishlistItem) {
-            response.status(404);
-            throw new Error("Produto não encontrado");
-        }
-
-        let user = await UserRepository.getUser(request.user.id);
-        if (!user) {
-            response.status(404);
-            throw new Error("Usuário não encontrado");
-        }
-
-        if (user.id !== wishlistItem.user.toString()) {
-            response.status(401);
-            throw new Error("Não autorizado.");
-        }
-
-        await WishlistItemRepository.deleteWishlistItem(id);
-
-        response.status(200).json({ message: "Feito." });
+  async (request: Request, response: Response) => {
+    if (!request.user || !request.params) {
+      response.status(400);
+      throw new Error("Dados Inválidos");
     }
+    const { id } = request.params;
+
+    const wishlistItem = await WishlistItemRepository.getWishlistItem(id);
+    if (!wishlistItem) {
+      response.status(404);
+      throw new Error("Produto não encontrado");
+    }
+
+    const user = await UserRepository.getUser(request.user.id);
+    if (!user) {
+      response.status(404);
+      throw new Error("Usuário não encontrado");
+    }
+
+    if (user.id !== wishlistItem.user.toString()) {
+      response.status(401);
+      throw new Error("Não autorizado.");
+    }
+
+    await WishlistItemRepository.deleteWishlistItem(id);
+
+    response.status(200).json({ message: "Feito." });
+  }
 );

@@ -14,19 +14,18 @@ import { startSession } from "mongoose";
  * @throws throws error if the data is not valid.
  */
 export const getWishlistItensFromCollection = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.params) {
-            response.status(400);
-            throw new Error("Dados Inválidos.");
-        }
-
-        let { id } = request.params;
-
-        let itens =
-            await WishlistItemRepository.getWishlistItemsByCollection(id);
-
-        response.status(200).json(itens);
+  async (request: Request, response: Response) => {
+    if (!request.params) {
+      response.status(400);
+      throw new Error("Dados Inválidos.");
     }
+
+    const { id } = request.params;
+
+    const items = await WishlistItemRepository.getWishlistItemsByCollection(id);
+
+    response.status(200).json(items);
+  }
 );
 
 /**
@@ -36,38 +35,38 @@ export const getWishlistItensFromCollection = asyncHandler(
  * @throws throws error if the data is not valid or if a collection with given name already exist.
  */
 export const createCollection = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.user || !request.body) {
-            response.status(400);
-            throw new Error("Dados inválidos.");
-        }
-
-        let collectionData: ICollectionData = request.body;
-        WishlistCollectionValidator.validate(response, collectionData);
-
-        let user = await UserRepository.getUser(request.user.id);
-        if (!user) {
-            response.status(404);
-            throw new Error("Usuário não encontrado.");
-        }
-
-        let collectionAlreadyExists =
-            await WishlistCollectionRepository.getCollectionByNameFromUser(
-                user.id,
-                collectionData.name
-            );
-
-        if (collectionAlreadyExists) {
-            response.status(400);
-            throw new Error("Já existe uma coleção com esse nome.");
-        }
-
-        await WishlistCollectionRepository.createCollection({
-            ...collectionData,
-            user: user.id,
-        });
-        response.status(200).json({ message: "Coleção Criada." });
+  async (request: Request, response: Response) => {
+    if (!request.user || !request.body) {
+      response.status(400);
+      throw new Error("Dados inválidos.");
     }
+
+    const collectionData: ICollectionData = request.body;
+    WishlistCollectionValidator.validate(response, collectionData);
+
+    const user = await UserRepository.getUser(request.user.id);
+    if (!user) {
+      response.status(404);
+      throw new Error("Usuário não encontrado.");
+    }
+
+    const collectionAlreadyExists =
+      await WishlistCollectionRepository.getCollectionByNameFromUser(
+        user.id,
+        collectionData.name
+      );
+
+    if (collectionAlreadyExists) {
+      response.status(400);
+      throw new Error("Já existe uma coleção com esse nome.");
+    }
+
+    await WishlistCollectionRepository.createCollection({
+      ...collectionData,
+      user: user.id,
+    });
+    response.status(200).json({ message: "Coleção Criada." });
+  }
 );
 
 /**
@@ -77,38 +76,38 @@ export const createCollection = asyncHandler(
  * @throws throws error if the data is not valid, if a collection has not been found or if the collection owner is different from request user.
  */
 export const updateCollection = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.user || !request.body || !request.params) {
-            response.status(400);
-            throw new Error("Dados inválidos.");
-        }
-        let { id } = request.params;
-
-        let collectionToBeUpdated =
-            await WishlistCollectionRepository.getCollection(id);
-        if (!collectionToBeUpdated) {
-            response.status(404);
-            throw new Error("Coleção Não Encontrada.");
-        }
-
-        let collectionData: ICollectionData = request.body;
-        WishlistCollectionValidator.validate(response, collectionData);
-
-        if (
-            collectionData.user !== request.user.id ||
-            collectionData.user !== collectionToBeUpdated.user.toString()
-        ) {
-            response.status(401);
-            throw new Error("Não Autorizado.");
-        }
-
-        await WishlistCollectionRepository.updateCollectionDetails(
-            id,
-            collectionData
-        );
-
-        response.status(200).json({ message: "Coleção Atualizada." });
+  async (request: Request, response: Response) => {
+    if (!request.user || !request.body || !request.params) {
+      response.status(400);
+      throw new Error("Dados inválidos.");
     }
+    const { id } = request.params;
+
+    const collectionToBeUpdated =
+      await WishlistCollectionRepository.getCollection(id);
+    if (!collectionToBeUpdated) {
+      response.status(404);
+      throw new Error("Coleção Não Encontrada.");
+    }
+
+    const collectionData: ICollectionData = request.body;
+    WishlistCollectionValidator.validate(response, collectionData);
+
+    if (
+      collectionData.user !== request.user.id ||
+      collectionData.user !== collectionToBeUpdated.user.toString()
+    ) {
+      response.status(401);
+      throw new Error("Não Autorizado.");
+    }
+
+    await WishlistCollectionRepository.updateCollectionDetails(
+      id,
+      collectionData
+    );
+
+    response.status(200).json({ message: "Coleção Atualizada." });
+  }
 );
 
 /**
@@ -118,33 +117,34 @@ export const updateCollection = asyncHandler(
  * @throws throws error if the data is not valid.
  */
 export const deleteCollection = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.user || !request.params) {
-            response.status(400);
-            throw new Error("Dados Inválidos.");
-        }
-
-        let { id } = request.params;
-        let collection = await WishlistCollectionRepository.getCollection(id);
-
-        let session = await startSession()
-        await session.withTransaction(async () => {
-
-            if (!collection) {
-                response.status(404);
-                throw new Error("Coleção não encontrada.");
-            }
-            
-            if (collection.user.toString() !== request.user.id) {
-                response.status(401);
-                throw new Error("Não Autorizado.");
-            }
-            
-            await WishlistItemRepository.deleteWishlistItemByCollection(id, {session})
-            await WishlistCollectionRepository.deleteCollection(id, {session});
-            session.commitTransaction()
-        })
-        await session.endSession()
-        response.status(200).json({ message: "Coleção Excluida." });
+  async (request: Request, response: Response) => {
+    if (!request.user || !request.params) {
+      response.status(400);
+      throw new Error("Dados Inválidos.");
     }
+
+    const { id } = request.params;
+    const collection = await WishlistCollectionRepository.getCollection(id);
+
+    const session = await startSession();
+    await session.withTransaction(async () => {
+      if (!collection) {
+        response.status(404);
+        throw new Error("Coleção não encontrada.");
+      }
+
+      if (collection.user.toString() !== request.user.id) {
+        response.status(401);
+        throw new Error("Não Autorizado.");
+      }
+
+      await WishlistItemRepository.deleteWishlistItemByCollection(id, {
+        session,
+      });
+      await WishlistCollectionRepository.deleteCollection(id, { session });
+      session.commitTransaction();
+    });
+    await session.endSession();
+    response.status(200).json({ message: "Coleção Excluida." });
+  }
 );

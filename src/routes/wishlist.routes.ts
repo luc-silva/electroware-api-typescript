@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
-    createWishlistItem,
-    removeWishlistItem,
+  createWishlistItem,
+  removeWishlistItem,
 } from "../controllers/wishlistItemController";
 import { protectedRoute } from "../middleware/auth";
 

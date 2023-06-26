@@ -1,11 +1,10 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 
 export const errorMiddleware = (
-    err: any,
-    request: Request,
-    response: Response,
-    next: NextFunction
+  err: Error,
+  request: Request,
+  response: Response
 ) => {
-    response.status(response.statusCode < 400 ? 400 : response.statusCode);
-    response.json(err.message);
+  response.status(response.statusCode < 400 ? 400 : response.statusCode);
+  response.json(err.message);
 };

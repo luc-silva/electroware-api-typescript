@@ -1,9 +1,6 @@
 import { Router } from "express";
 
-import {
-    createProductTransaction,
-    getUserTransactions,
-} from "../controllers/transactionController";
+import { createProductTransaction } from "../controllers/transactionController";
 import { protectedRoute } from "../middleware/auth";
 
 export const transactionRouter = Router();

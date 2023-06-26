@@ -8,39 +8,39 @@ import { reviewRouter } from "./routes/review.routes";
 import { wishlistRouter } from "./routes/wishlist.routes";
 import { shoppingCartRouter } from "./routes/shoppingCart.routes";
 import { transactionRouter } from "./routes/transaction.routes";
-import { imageRouter } from "./routes/image.routes"; 
+import { imageRouter } from "./routes/image.routes";
 import { wishlistCollectionRouter } from "./routes/wishlistCollection.routes";
 import { connectDB } from "./middleware/db";
 import { errorMiddleware } from "./middleware/error";
 
 function main() {
-    let app = express();
+  const app = express();
 
-    try {
-        connectDB();
-    } catch (err) {
-        throw new Error("Nothing yet");
-    }
+  try {
+    connectDB();
+  } catch (err) {
+    throw new Error("Nothing yet");
+  }
 
-    app.use(cors());
-    app.use(express.json());
-    // app.use(express.);
-    app.use(express.urlencoded({ extended: false }));
+  app.use(cors());
+  app.use(express.json());
+  // app.use(express.);
+  app.use(express.urlencoded({ extended: false }));
 
-    app.listen(6060);
-    // userRouter contains login and register router.
-    app.use("/api", userRouter);
+  app.listen(6060);
+  // userRouter contains login and register router.
+  app.use("/api", userRouter);
 
-    //
-    app.use("/api/product", productRouter);
-    app.use("/api/category", categoryRouter);
-    app.use("/api/review", reviewRouter);
-    app.use("/api/shoppingcart", shoppingCartRouter);
-    app.use("/api/wishlist", wishlistRouter);
-    app.use("/api/transaction", transactionRouter);
-    app.use("/api/image", imageRouter);
-    app.use("/api/collection", wishlistCollectionRouter);
-    app.use(errorMiddleware);
+  //
+  app.use("/api/product", productRouter);
+  app.use("/api/category", categoryRouter);
+  app.use("/api/review", reviewRouter);
+  app.use("/api/shoppingcart", shoppingCartRouter);
+  app.use("/api/wishlist", wishlistRouter);
+  app.use("/api/transaction", transactionRouter);
+  app.use("/api/image", imageRouter);
+  app.use("/api/collection", wishlistCollectionRouter);
+  app.use(errorMiddleware);
 }
- 
-main()
+
+main();

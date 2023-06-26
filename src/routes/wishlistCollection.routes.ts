@@ -1,9 +1,9 @@
 import { Router } from "express";
 import {
-    createCollection,
-    deleteCollection,
-    getWishlistItensFromCollection,
-    updateCollection,
+  createCollection,
+  deleteCollection,
+  getWishlistItensFromCollection,
+  updateCollection,
 } from "../controllers/wishlistCollectionController";
 import { protectedRoute } from "../middleware/auth";
 

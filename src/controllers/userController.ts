@@ -9,9 +9,9 @@ import WishlistCollectionRepository from "../repositories/WishlistCollectionRepo
 import ResponseHandler from "../utils/ResponseHandler";
 
 function generateToken(id: string) {
-    return sign({ id }, "123", {
-        expiresIn: "7d",
-    });
+  return sign({ id }, "123", {
+    expiresIn: "7d",
+  });
 }
 
 /**
@@ -21,39 +21,35 @@ function generateToken(id: string) {
  * @throws throws error if there's no user with given email or wrong credentials
  */
 export const loginUser = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.body) {
-            response.status(400);
-            throw new Error("Dados Inválidos.");
-        }
-
-        let { email, password } = request.body;
-        let user = await UserRepository.getUserInfoWithEmail(email);
-        if (!user) {
-            ResponseHandler.handleResponse(
-                response,
-                404,
-                "Usuário não encontrado."
-            );
-            throw new Error("Usuário não encontrado.");
-        }
-
-        if (user && !(await bcrypt.compare(password, user.password))) {
-            ResponseHandler.handleResponse(response, 401, "Senha inválida.");
-            throw new Error("Senha inválida.");
-        }
-
-        //generate token to use in a protected route
-        let token = generateToken(user.id);
-
-        response.status(200).json({
-            email,
-            id: user.id,
-            username: user.get("username"),
-            funds: user.funds,
-            token: token,
-        });
+  async (request: Request, response: Response) => {
+    if (!request.body) {
+      response.status(400);
+      throw new Error("Dados Inválidos.");
     }
+
+    const { email, password } = request.body;
+    const user = await UserRepository.getUserInfoWithEmail(email);
+    if (!user) {
+      ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.");
+      throw new Error("Usuário não encontrado.");
+    }
+
+    if (user && !(await bcrypt.compare(password, user.password))) {
+      ResponseHandler.handleResponse(response, 401, "Senha inválida.");
+      throw new Error("Senha inválida.");
+    }
+
+    //generate token to use in a protected route
+    const token = generateToken(user.id);
+
+    response.status(200).json({
+      email,
+      id: user.id,
+      username: user.get("username"),
+      funds: user.funds,
+      token: token,
+    });
+  }
 );
 
 /**
@@ -63,40 +59,38 @@ export const loginUser = asyncHandler(
  * @throws throws error if there's already a user with given email or with the data isn't valid.
  */
 export const registerUser = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.body) {
-            ResponseHandler.handleResponse(response, 400, "Dados Inválidos.");
-            throw new Error("Dados Inválidos.");
-        }
-
-        let userData = request.body;
-        UserValidator.validateRegistration(response, userData);
-
-        let userExist = await UserRepository.getUserInfoWithEmail(
-            userData.email
-        );
-        if (userExist) {
-            ResponseHandler.handleResponse(
-                response,
-                400,
-                "Uma conta já foi criada com esse email."
-            );
-
-            throw new Error("Uma conta já foi criada com esse email.");
-        }
-
-        //hash password
-        let salt = await bcrypt.genSalt(10);
-        let hashedPassword = await bcrypt.hash(userData.password, salt);
-
-        let newUser = {
-            ...userData,
-            password: hashedPassword,
-        };
-
-        await UserRepository.createUser(newUser);
-        response.status(202).json({ message: "Usuário Criado." });
+  async (request: Request, response: Response) => {
+    if (!request.body) {
+      ResponseHandler.handleResponse(response, 400, "Dados Inválidos.");
+      throw new Error("Dados Inválidos.");
     }
+
+    const userData = request.body;
+    UserValidator.validateRegistration(response, userData);
+
+    const userExist = await UserRepository.getUserInfoWithEmail(userData.email);
+    if (userExist) {
+      ResponseHandler.handleResponse(
+        response,
+        400,
+        "Uma conta já foi criada com esse email."
+      );
+
+      throw new Error("Uma conta já foi criada com esse email.");
+    }
+
+    //hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(userData.password, salt);
+
+    const newUser = {
+      ...userData,
+      password: hashedPassword,
+    };
+
+    await UserRepository.createUser(newUser);
+    response.status(202).json({ message: "Usuário Criado." });
+  }
 );
 
 /**
@@ -106,34 +100,34 @@ export const registerUser = asyncHandler(
  * @throws throws error if no user has been found or if the given password isn't valid.
  */
 export const updateUserPassword = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.user || !request.body) {
-            ResponseHandler.handleResponse(response, 400, "Dados Inválidos.")
-            throw new Error("Dados Inválidos.");
-        }
-
-        let user = await UserRepository.getUserPrivateDetails(request.user.id);
-        if (!user) {
-            ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.")
-            throw new Error("Usuário não encontrado.");
-        }
-
-        let { password, new_password } = request.body;
-        UserValidator.validatePasswordChange(response, request.body);
-
-        if (!(await bcrypt.compare(password, user.password))) {
-            ResponseHandler.handleResponse(response, 401, "Senha Inválida.")
-            throw new Error("Senha Inválida.");
-        }
-
-        let salt = await bcrypt.genSalt(10);
-        let hashedPassword = await bcrypt.hash(new_password, salt);
-
-        await UserRepository.findUserAndUpdateDetails(user.id, {
-            password: hashedPassword,
-        });
-        response.status(200).json({ message: "Senha Atualizada." });
+  async (request: Request, response: Response) => {
+    if (!request.user || !request.body) {
+      ResponseHandler.handleResponse(response, 400, "Dados Inválidos.");
+      throw new Error("Dados Inválidos.");
     }
+
+    const user = await UserRepository.getUserPrivateDetails(request.user.id);
+    if (!user) {
+      ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.");
+      throw new Error("Usuário não encontrado.");
+    }
+
+    const { password, new_password } = request.body;
+    UserValidator.validatePasswordChange(response, request.body);
+
+    if (!(await bcrypt.compare(password, user.password))) {
+      ResponseHandler.handleResponse(response, 401, "Senha Inválida.");
+      throw new Error("Senha Inválida.");
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(new_password, salt);
+
+    await UserRepository.findUserAndUpdateDetails(user.id, {
+      password: hashedPassword,
+    });
+    response.status(200).json({ message: "Senha Atualizada." });
+  }
 );
 
 /**
@@ -143,31 +137,35 @@ export const updateUserPassword = asyncHandler(
  * @throws throws error if no user has been found or if the given email isn't valid.
  */
 export const updateUserEmail = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.user || !request.body) {
-            ResponseHandler.handleResponse(response, 400, "Dados Inválidos.")
-            throw new Error("Dados Inválidos.");
-        }
-
-        let user = await UserRepository.getUserPrivateDetails(request.user.id);
-        if (!user) {
-            ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.")
-            throw new Error("Usuário não encontrado.");
-        }
-
-        let { email } = request.body;
-        UserValidator.validateEmailChange(response, request.body);
-        let userWithEmail = await UserRepository.getUserInfoWithEmail(email);
-        if (userWithEmail) {
-            ResponseHandler.handleResponse(response, 400, "Email já está sendo usado.")
-            throw new Error("Email já está sendo usado.");
-        }
-
-        await UserRepository.findUserAndUpdateDetails(user.id, {
-            email,
-        });
-        response.status(200).json({ message: "Email Atualizado." });
+  async (request: Request, response: Response) => {
+    if (!request.user || !request.body) {
+      ResponseHandler.handleResponse(response, 400, "Dados Inválidos.");
+      throw new Error("Dados Inválidos.");
     }
+
+    const user = await UserRepository.getUserPrivateDetails(request.user.id);
+    if (!user) {
+      ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.");
+      throw new Error("Usuário não encontrado.");
+    }
+
+    const { email } = request.body;
+    UserValidator.validateEmailChange(response, request.body);
+    const userWithEmail = await UserRepository.getUserInfoWithEmail(email);
+    if (userWithEmail) {
+      ResponseHandler.handleResponse(
+        response,
+        400,
+        "Email já está sendo usado."
+      );
+      throw new Error("Email já está sendo usado.");
+    }
+
+    await UserRepository.findUserAndUpdateDetails(user.id, {
+      email,
+    });
+    response.status(200).json({ message: "Email Atualizado." });
+  }
 );
 
 /**
@@ -177,21 +175,21 @@ export const updateUserEmail = asyncHandler(
  * @throws throws error if no user has been found or if the user id isn't valid.
  */
 export const getProfileInfo = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.body || !request.params) {
-            ResponseHandler.handleResponse(response, 400, "Dados Inválidos.")
-            throw new Error("Dados Inválidos.");
-        }
-
-        let { id } = request.params;
-        let user = await UserRepository.getUser(id);
-        if (!user) {
-            ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.")
-            throw new Error("Usuario não encontrado");
-        }
-
-        response.json(user);
+  async (request: Request, response: Response) => {
+    if (!request.body || !request.params) {
+      ResponseHandler.handleResponse(response, 400, "Dados Inválidos.");
+      throw new Error("Dados Inválidos.");
     }
+
+    const { id } = request.params;
+    const user = await UserRepository.getUser(id);
+    if (!user) {
+      ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.");
+      throw new Error("Usuario não encontrado");
+    }
+
+    response.json(user);
+  }
 );
 
 /**
@@ -202,22 +200,22 @@ export const getProfileInfo = asyncHandler(
  * @throws throws error if no user has been found or if the user id isn't valid.
  */
 export const getUserProducts = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.body || !request.params) {
-            ResponseHandler.handleResponse(response, 400, "Dados Inválidos.")
-            throw new Error("Dados Inválidos.");
-        }
-
-        let { id } = request.params;
-        let user = await UserRepository.getUser(id);
-        if (!user) {
-            ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.")
-            throw new Error("Usuário não encontrado.");
-        }
-
-        let userProducts = await UserRepository.getUserProducts(user.id);
-        response.status(202).json(userProducts);
+  async (request: Request, response: Response) => {
+    if (!request.body || !request.params) {
+      ResponseHandler.handleResponse(response, 400, "Dados Inválidos.");
+      throw new Error("Dados Inválidos.");
     }
+
+    const { id } = request.params;
+    const user = await UserRepository.getUser(id);
+    if (!user) {
+      ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.");
+      throw new Error("Usuário não encontrado.");
+    }
+
+    const userProducts = await UserRepository.getUserProducts(user.id);
+    response.status(202).json(userProducts);
+  }
 );
 
 /**
@@ -228,28 +226,28 @@ export const getUserProducts = asyncHandler(
  * @throws throws error if no user has been found, if the private info ins't from the request user or if the user id isn't valid.
  */
 export const getUserPrivateInfo = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.user || !request.params) {
-            ResponseHandler.handleResponse(response, 400, "Dados Inválidos.")
-            throw new Error("Dados Inválidos.");
-        }
-
-        let { id } = request.params;
-        let user = await UserRepository.getUserEmailAndFunds(id);
-        if (!user) {
-            ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.")
-            throw new Error("Usuário não encontrado.");
-        }
-
-        if (user.id !== id) {
-            ResponseHandler.handleResponse(response, 401, "Não autorizado.")
-            throw new Error("Não autorizado.");
-        }
-
-        response
-            .status(200)
-            .json({ id: user.id, funds: user.funds, email: user.email });
+  async (request: Request, response: Response) => {
+    if (!request.user || !request.params) {
+      ResponseHandler.handleResponse(response, 400, "Dados Inválidos.");
+      throw new Error("Dados Inválidos.");
     }
+
+    const { id } = request.params;
+    const user = await UserRepository.getUserEmailAndFunds(id);
+    if (!user) {
+      ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.");
+      throw new Error("Usuário não encontrado.");
+    }
+
+    if (user.id !== id) {
+      ResponseHandler.handleResponse(response, 401, "Não autorizado.");
+      throw new Error("Não autorizado.");
+    }
+
+    response
+      .status(200)
+      .json({ id: user.id, funds: user.funds, email: user.email });
+  }
 );
 
 /**
@@ -260,27 +258,27 @@ export const getUserPrivateInfo = asyncHandler(
  * @throws throws error if no user has been found, or if the amount isn't valid.
  */
 export const addFunds = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.body || !request.user) {
-            ResponseHandler.handleResponse(response, 400, "Dados Inválidos.")
-            throw new Error("Dados Inválidos.");
-        }
-
-        let { amount } = request.body;
-        if (amount < 0) {
-            ResponseHandler.handleResponse(response, 400, "Valor Inválido.")
-            throw new Error("Valor Inválido.");
-        }
-
-        let userExist = await UserRepository.getUser(request.user.id);
-        if (!userExist) {
-            ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.")
-            throw new Error("Usuário não encontrado.");
-        }
-
-        await UserRepository.addUserFunds(userExist.id, amount);
-        response.status(202).json({ message: "Valor Adicionado." });
+  async (request: Request, response: Response) => {
+    if (!request.body || !request.user) {
+      ResponseHandler.handleResponse(response, 400, "Dados Inválidos.");
+      throw new Error("Dados Inválidos.");
     }
+
+    const { amount } = request.body;
+    if (amount < 0) {
+      ResponseHandler.handleResponse(response, 400, "Valor Inválido.");
+      throw new Error("Valor Inválido.");
+    }
+
+    const userExist = await UserRepository.getUser(request.user.id);
+    if (!userExist) {
+      ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.");
+      throw new Error("Usuário não encontrado.");
+    }
+
+    await UserRepository.addUserFunds(userExist.id, amount);
+    response.status(202).json({ message: "Valor Adicionado." });
+  }
 );
 
 /**
@@ -291,27 +289,27 @@ export const addFunds = asyncHandler(
  * @throws throws error if no user has been found, if the request user ID is different from the user ID or if the user ID isn't valid.
  */
 export const deleteAccount = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.params || !request.user) {
-            ResponseHandler.handleResponse(response, 400, "Dados Inválidos.")
-            throw new Error("Dados Inválidos.");
-        }
-
-        let { id } = request.params;
-        const user = await UserRepository.getUser(id);
-        if (!user) {
-            ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.")
-            throw new Error("Usuário não encontrado.");
-        }
-
-        if (user.id !== id) {
-            ResponseHandler.handleResponse(response, 401, "Não autorizado")
-            throw new Error("Não autorizado.");
-        }
-
-        await UserRepository.deleteUserAccount(id);
-        response.status(200).json({ message: "Conta Excluida." });
+  async (request: Request, response: Response) => {
+    if (!request.params || !request.user) {
+      ResponseHandler.handleResponse(response, 400, "Dados Inválidos.");
+      throw new Error("Dados Inválidos.");
     }
+
+    const { id } = request.params;
+    const user = await UserRepository.getUser(id);
+    if (!user) {
+      ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.");
+      throw new Error("Usuário não encontrado.");
+    }
+
+    if (user.id !== id) {
+      ResponseHandler.handleResponse(response, 401, "Não autorizado");
+      throw new Error("Não autorizado.");
+    }
+
+    await UserRepository.deleteUserAccount(id);
+    response.status(200).json({ message: "Conta Excluida." });
+  }
 );
 
 /**
@@ -322,26 +320,26 @@ export const deleteAccount = asyncHandler(
  * @throws throws error if any field expect from the body isn't valid, if not user has been found or if the request user id is different from user ID.
  */
 export const updateUserInfo = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.user || !request.body || !request.params) {
-            ResponseHandler.handleResponse(response, 400, "Dados Inválidos.")
-            throw new Error("Dados Inválidos.");
-        }
-
-        let updatedUserData = request.body;
-        UserValidator.validate(response, updatedUserData);
-
-        let { id } = request.params;
-        let userExist = await UserRepository.getUser(id);
-        if (!userExist) {
-            ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.")
-            throw new Error("Usuário não Encontrado.");
-        }
-
-        await UserRepository.findUserAndUpdateDetails(id, updatedUserData);
-
-        response.status(200).json({ message: "Feito." });
+  async (request: Request, response: Response) => {
+    if (!request.user || !request.body || !request.params) {
+      ResponseHandler.handleResponse(response, 400, "Dados Inválidos.");
+      throw new Error("Dados Inválidos.");
     }
+
+    const updatedUserData = request.body;
+    UserValidator.validate(response, updatedUserData);
+
+    const { id } = request.params;
+    const userExist = await UserRepository.getUser(id);
+    if (!userExist) {
+      ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.");
+      throw new Error("Usuário não Encontrado.");
+    }
+
+    await UserRepository.findUserAndUpdateDetails(id, updatedUserData);
+
+    response.status(200).json({ message: "Feito." });
+  }
 );
 
 /**
@@ -351,20 +349,20 @@ export const updateUserInfo = asyncHandler(
  * @throws throws error if the user has not been found.
  */
 export const getEveryUserCollectionOwned = asyncHandler(
-    async (request: Request, response: Response) => {
-        let { id } = request.params;
+  async (request: Request, response: Response) => {
+    const { id } = request.params;
 
-        let user = await UserRepository.getUser(id);
-        if (!user) {
-            ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.")
-            throw new Error("Usuário não Encontrado.");
-        }
-
-        let collections =
-            await WishlistCollectionRepository.getCollectionsFromUser(user.id);
-
-        response.status(200).json(collections);
+    const user = await UserRepository.getUser(id);
+    if (!user) {
+      ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.");
+      throw new Error("Usuário não Encontrado.");
     }
+
+    const collections =
+      await WishlistCollectionRepository.getCollectionsFromUser(user.id);
+
+    response.status(200).json(collections);
+  }
 );
 
 /**
@@ -374,20 +372,18 @@ export const getEveryUserCollectionOwned = asyncHandler(
  * @throws throws error if the user has not been found.
  */
 export const getUserPublicCollections = asyncHandler(
-    async (request: Request, response: Response) => {
-        let { id } = request.params;
+  async (request: Request, response: Response) => {
+    const { id } = request.params;
 
-        let user = await UserRepository.getUser(id);
-        if (!user) {
-            ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.")
-            throw new Error("Usuário não Encontrado.");
-        }
-
-        let collections =
-            await WishlistCollectionRepository.getPublicCollectionsFromUser(
-                user.id
-            );
-
-        response.status(200).json(collections);
+    const user = await UserRepository.getUser(id);
+    if (!user) {
+      ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.");
+      throw new Error("Usuário não Encontrado.");
     }
+
+    const collections =
+      await WishlistCollectionRepository.getPublicCollectionsFromUser(user.id);
+
+    response.status(200).json(collections);
+  }
 );

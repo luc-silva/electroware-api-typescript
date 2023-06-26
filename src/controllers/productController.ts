@@ -15,14 +15,14 @@ import { IProduct } from "../../interface";
  * @throws throws error if any product has been found.
  */
 export const getRecentProducts = asyncHandler(
-    async (request: Request, response: Response) => {
-        let products = await ProductRepository.getRecentProducts();
-        if (products.length === 0) {
-            response.status(400);
-            throw new Error("Nenhum produto encontrado.");
-        }
-        response.status(200).json(products);
+  async (request: Request, response: Response) => {
+    const products = await ProductRepository.getRecentProducts();
+    if (products.length === 0) {
+      response.status(400);
+      throw new Error("Nenhum produto encontrado.");
     }
+    response.status(200).json(products);
+  }
 );
 
 /**
@@ -31,10 +31,10 @@ export const getRecentProducts = asyncHandler(
  * @param {Response} response - The HTTP response object containing products IDs.
  */
 export const getDiscountedProducts = asyncHandler(
-    async (request: Request, response: Response) => {
-        let products = await ProductRepository.getDiscountedProducts();
-        response.status(200).json(products);
-    }
+  async (request: Request, response: Response) => {
+    const products = await ProductRepository.getDiscountedProducts();
+    response.status(200).json(products);
+  }
 );
 
 /**
@@ -44,17 +44,17 @@ export const getDiscountedProducts = asyncHandler(
  * @throws throws error if any product has been found.
  */
 export const getProductRating = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.params) {
-            throw new Error("Produto Inválido");
-        }
-        let { id } = request.params;
-
-        let average = await ProductRepository.getAverageScoreFromProduct(id);
-        let scoreMetrics = await ProductRepository.getRatingsMetrics(id);
-
-        response.status(200).json({ average, scoreMetrics });
+  async (request: Request, response: Response) => {
+    if (!request.params) {
+      throw new Error("Produto Inválido");
     }
+    const { id } = request.params;
+
+    const average = await ProductRepository.getAverageScoreFromProduct(id);
+    const scoreMetrics = await ProductRepository.getRatingsMetrics(id);
+
+    response.status(200).json({ average, scoreMetrics });
+  }
 );
 
 /**
@@ -64,30 +64,28 @@ export const getProductRating = asyncHandler(
  * @throws throws error if receives invalid data.
  */
 export const searchProduct = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.params) {
-            response.status(400);
-            throw new Error("Critérios de busca inválidos.");
-        }
-
-        let { keyword } = request.params;
-        if (typeof keyword !== "string") {
-            response.status(400);
-            throw new Error("Critérios de busca inválidos.");
-        }
-
-        let possibleProducts = await ProductRepository.searchProductWithKeyword(
-            keyword
-        );
-
-        if (possibleProducts.length === 0) {
-            response
-                .status(404)
-                .json({ message: "Nenhum Produto foi encontrado." });
-        }
-
-        response.status(200).json(possibleProducts.map((item) => item.id));
+  async (request: Request, response: Response) => {
+    if (!request.params) {
+      response.status(400);
+      throw new Error("Critérios de busca inválidos.");
     }
+
+    const { keyword } = request.params;
+    if (typeof keyword !== "string") {
+      response.status(400);
+      throw new Error("Critérios de busca inválidos.");
+    }
+
+    const possibleProducts = await ProductRepository.searchProductWithKeyword(
+      keyword
+    );
+
+    if (possibleProducts.length === 0) {
+      response.status(404).json({ message: "Nenhum Produto foi encontrado." });
+    }
+
+    response.status(200).json(possibleProducts.map((item) => item.id));
+  }
 );
 
 /**
@@ -97,28 +95,28 @@ export const searchProduct = asyncHandler(
  * @throws throws error if receives invalid data, if a product has not been found or if a product image has not been found.
  */
 export const getProductDetails = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.params) {
-            response.status(400);
-            throw new Error("URL Inválida.");
-        }
-
-        let { id } = request.params;
-
-        let product = await ProductRepository.getProductDetails(id);
-        if (!product) {
-            response.status(404);
-            throw new Error("Produto não encontrado.");
-        }
-
-        let image = await ImageRepository.getProductImage(product.id);
-        if (!image) {
-            response.status(400);
-            throw new Error("Imagem do produto não encontrada.");
-        }
-
-        response.status(200).json({ product, image: image.data });
+  async (request: Request, response: Response) => {
+    if (!request.params) {
+      response.status(400);
+      throw new Error("URL Inválida.");
     }
+
+    const { id } = request.params;
+
+    const product = await ProductRepository.getProductDetails(id);
+    if (!product) {
+      response.status(404);
+      throw new Error("Produto não encontrado.");
+    }
+
+    const image = await ImageRepository.getProductImage(product.id);
+    if (!image) {
+      response.status(400);
+      throw new Error("Imagem do produto não encontrada.");
+    }
+
+    response.status(200).json({ product, image: image.data });
+  }
 );
 
 /**
@@ -128,23 +126,21 @@ export const getProductDetails = asyncHandler(
  * @throws throws error if receives invalid data or if a category has not been found.
  */
 export const getProductFromCategory = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.params) {
-            response.status(400);
-            throw new Error("Dados Inválidos.");
-        }
-        let { id } = request.params;
-        let category = await CategoryRepository.getSingleCategory(id);
-        if (!category) {
-            response.status(404);
-            throw new Error("Categoria não encontrada");
-        }
-
-        let products = await CategoryRepository.getCategoryProducts(
-            category.id
-        );
-        response.status(200).json(products);
+  async (request: Request, response: Response) => {
+    if (!request.params) {
+      response.status(400);
+      throw new Error("Dados Inválidos.");
     }
+    const { id } = request.params;
+    const category = await CategoryRepository.getSingleCategory(id);
+    if (!category) {
+      response.status(404);
+      throw new Error("Categoria não encontrada");
+    }
+
+    const products = await CategoryRepository.getCategoryProducts(category.id);
+    response.status(200).json(products);
+  }
 );
 
 /**
@@ -155,51 +151,46 @@ export const getProductFromCategory = asyncHandler(
  * @throws throws error if receives a invalid data or if a user has not been found.
  */
 export const createProduct = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.body || !request.user || !request.file) {
-            response.status(400);
-            throw new Error("Insira os dados restantes.");
-        }
-
-        let user = await UserRepository.getUser(request.user.id);
-        if (!user) {
-            response.status(404);
-            throw new Error("Usuário não encontrado");
-        }
-
-        let requestBody = JSON.parse(request.body.product);
-        ProductValidator.validate(response, requestBody);
-
-        let { name, price, category, quantity, description, brand }: IProduct =
-            requestBody;
-
-        let convertedQuantity: number = Number(quantity);
-        let convertedPrice: number = Number(price);
-
-        let { buffer } = request.file;
-
-        let productData = {
-            owner: request.user,
-            name,
-            category,
-            brand,
-            description,
-            price: convertedPrice,
-            quantity: convertedQuantity,
-        };
-        let imageData = {
-            user: request.user.id,
-            data: buffer,
-            imageType: "productImage",
-        };
-
-        let productID = await ProductRepository.createProduct(
-            productData,
-            imageData
-        );
-
-        response.status(201).json({ message: "Anúncio Criado.", productID });
+  async (request: Request, response: Response) => {
+    if (!request.body || !request.user || !request.file) {
+      response.status(400);
+      throw new Error("Insira os dados restantes.");
     }
+
+    const user = await UserRepository.getUser(request.user.id);
+    if (!user) {
+      response.status(404);
+      throw new Error("Usuário não encontrado");
+    }
+
+    const requestBody = JSON.parse(request.body.product);
+    ProductValidator.validate(response, requestBody);
+
+    const { price, quantity }: IProduct = requestBody;
+
+    const convertedQuantity = Number(quantity);
+    const convertedPrice = Number(price);
+
+    const { buffer } = request.file;
+
+    const productData = {
+      ...requestBody,
+      price: convertedPrice,
+      quantity: convertedQuantity,
+    };
+    const imageData = {
+      user: request.user.id,
+      data: buffer,
+      imageType: "productImage",
+    };
+
+    const productID = await ProductRepository.createProduct(
+      productData,
+      imageData
+    );
+
+    response.status(201).json({ message: "Anúncio Criado.", productID });
+  }
 );
 
 /**
@@ -210,69 +201,69 @@ export const createProduct = asyncHandler(
  * @throws throws error if receives a invalid data or if a user has not been found.
  */
 export const updateProduct = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.params || !request.body || !request.user) {
-            response.status(400);
-            throw new Error("Dados Inválidos");
-        }
-
-        let user = await UserRepository.getUser(request.user.id);
-        if (!user) {
-            response.status(404);
-            throw new Error("Usuário não encontrado");
-        }
-
-        let productDataBody = request.body;
-        ProductValidator.validate(response, productDataBody);
-
-        let { price, quantity }: IProduct = productDataBody;
-
-        let updatedProductData = {
-            ...productDataBody,
-            price: Number(price),
-            quantity: Number(quantity),
-        };
-
-        let { id } = request.params;
-        await ProductRepository.updateProduct(id, updatedProductData);
-
-        response.status(201).json({ message: "Produto Atualizado." });
+  async (request: Request, response: Response) => {
+    if (!request.params || !request.body || !request.user) {
+      response.status(400);
+      throw new Error("Dados Inválidos");
     }
+
+    const user = await UserRepository.getUser(request.user.id);
+    if (!user) {
+      response.status(404);
+      throw new Error("Usuário não encontrado");
+    }
+
+    const productDataBody = request.body;
+    ProductValidator.validate(response, productDataBody);
+
+    const { price, quantity }: IProduct = productDataBody;
+
+    const updatedProductData = {
+      ...productDataBody,
+      price: Number(price),
+      quantity: Number(quantity),
+    };
+
+    const { id } = request.params;
+    await ProductRepository.updateProduct(id, updatedProductData);
+
+    response.status(201).json({ message: "Produto Atualizado." });
+  }
 );
 
 /**
- * DELETE, AUTH REQUIRED - Delete product with given valid ObjectId.
+ * DEconstE, AUTH REQUIRED - Deconste product with given valid ObjectId.
  *
  * @param {Request} request - The HTTP request object containing product id.
  * @param {Response} response - The HTTP response object containing a conclusion message.
  * @throws throws error if receives a invalid data, if the product owner is different from request user, or if a user has not been found.
  */
-export const deleteProduct = asyncHandler(
-    async (request: Request, response: Response) => {
-        if (!request.user || !request.params) {
-            response.status(400);
-            throw new Error("Dados Inválidos");
-        }
-
-        let user = await UserRepository.getUser(request.user.id);
-        if (!user) {
-            response.status(404);
-            throw new Error("Usuário não encontrado.");
-        }
-
-        let { id } = request.params;
-
-        let product = await ProductRepository.getProductDetails(id);
-        if (!product) {
-            response.status(404);
-            throw new Error("Produto não encontrado.");
-        }
-        if (product.owner.toString() !== user.id) {
-            response.status(401);
-            throw new Error("Não autorizado.");
-        }
-
-        await ProductRepository.deleteProduct(id);
-        response.status(201).json({ message: "Produto excluido" });
+export const deconsteProduct = asyncHandler(
+  async (request: Request, response: Response) => {
+    if (!request.user || !request.params) {
+      response.status(400);
+      throw new Error("Dados Inválidos");
     }
+
+    const user = await UserRepository.getUser(request.user.id);
+    if (!user) {
+      response.status(404);
+      throw new Error("Usuário não encontrado.");
+    }
+
+    const { id } = request.params;
+
+    const product = await ProductRepository.getProductDetails(id);
+    if (!product) {
+      response.status(404);
+      throw new Error("Produto não encontrado.");
+    }
+    if (product.owner.toString() !== user.id) {
+      response.status(401);
+      throw new Error("Não autorizado.");
+    }
+
+    await ProductRepository.deleteProduct(id);
+    response.status(201).json({ message: "Produto excluido" });
+  }
 );

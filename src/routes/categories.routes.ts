@@ -1,5 +1,9 @@
 import { Router } from "express";
-import {createCategory, getCategories, getSingleCategory} from "../controllers/categoryController"
+import {
+  createCategory,
+  getCategories,
+  getSingleCategory,
+} from "../controllers/categoryController";
 import { getProductFromCategory } from "../controllers/productController";
 
 export const categoryRouter = Router();
