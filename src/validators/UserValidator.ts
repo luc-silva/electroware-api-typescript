@@ -26,13 +26,18 @@ class UserValidator implements Validator {
 
     if (!name.first || name.first.length > 10 || name.last.length > 10) {
       response.status(400);
-      throw new Error("Campo nome Inválido.");
+      throw new Error("Campo nome inválido.");
     }
 
     if (description.length > 250) {
       response.status(400);
-      throw new Error("Campo descrição Inválido.");
+      throw new Error("Campo descrição inválido.");
     }
+  }
+
+  public validateLogin(response: Response, requestBody: UserBody): void {
+    this.validateEmail(response, requestBody.email);
+    this.validatePassword(response, requestBody.password);
   }
 
   public validatePasswordChange(response: Response, requestBody: UserBody) {
@@ -76,21 +81,21 @@ class UserValidator implements Validator {
       name.last.length > 10
     ) {
       response.status(400);
-      throw new Error("Campo nome Inválido.");
+      throw new Error("Campo nome inválido.");
     }
   }
 
   private validateDescription(response: Response, description: string) {
     if (description && description.length > 250) {
       response.status(400);
-      throw new Error("Campo descrição Inválido.");
+      throw new Error("Campo descrição inválido.");
     }
   }
 
   private validateLocation(response: Response, location: UserLocationField) {
     if (!location.country || !location.state) {
       response.status(400);
-      throw new Error("Campo estado ou país Inválidos.");
+      throw new Error("Campo estado ou país inválidos.");
     }
   }
 }

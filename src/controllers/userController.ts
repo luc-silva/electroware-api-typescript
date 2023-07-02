@@ -28,6 +28,8 @@ export const loginUser = asyncHandler(
     }
 
     const { email, password } = request.body;
+    UserValidator.validateLogin(response, request.body);
+
     const user = await UserRepository.getUserInfoWithEmail(email);
     if (!user) {
       ResponseHandler.handleResponse(response, 404, "Usuário não encontrado.");

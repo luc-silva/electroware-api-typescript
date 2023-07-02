@@ -232,13 +232,13 @@ export const updateProduct = asyncHandler(
 );
 
 /**
- * DEconstE, AUTH REQUIRED - Deconste product with given valid ObjectId.
+ * DELETE, AUTH REQUIRED - Delete product with given valid ObjectId.
  *
  * @param {Request} request - The HTTP request object containing product id.
  * @param {Response} response - The HTTP response object containing a conclusion message.
  * @throws throws error if receives a invalid data, if the product owner is different from request user, or if a user has not been found.
  */
-export const deconsteProduct = asyncHandler(
+export const deleteProduct = asyncHandler(
   async (request: Request, response: Response) => {
     if (!request.user || !request.params) {
       response.status(400);

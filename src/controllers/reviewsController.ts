@@ -167,13 +167,13 @@ export const submitReview = asyncHandler(
 );
 
 /**
- * DEconstE, AUTH REQUIRED - Deconste a review instance with given valid ObjectId id.
+ * DELETE, AUTH REQUIRED - Delete a review instance with given valid ObjectId id.
  *
  * @param {Request} request - The HTTP request object containing the user and review ID.
  * @param {Response} response - The HTTP response object containing s conclusion message.
  * @throws throws error if review author, review author is different from request user or if the review has not been found.
  */
-export const deconsteReview = asyncHandler(
+export const deleteReview = asyncHandler(
   async (request: Request, response: Response) => {
     if (!request.params) {
       response.status(400);
