@@ -1,22 +1,18 @@
-import { Response } from "express";
-import { ICollectionData, Validator } from "../../interface";
+class WishlistCollectionValidator {
+  public checkCreate(request_body: CollectionDTO): void {
+    this.validateName(request_body.name);
+    this.validateVisibility(request_body.privated);
+  }
 
-class WishlistCollectionValidator implements Validator {
-  public validate(response: Response, requestBody: ICollectionData): void {
-    const { name, privated } = requestBody;
+  private validateName(name: string) {
     if (typeof name !== "string") {
-      response.status(400);
       throw new Error("Campo nome inválido.");
     }
+  }
 
-    /*         if (!Types.ObjectId.isValid(user)) {
-            response.status(400);
-            throw new Error("Usuário Inválido.");
-        } */
-
-    if (typeof privated !== "boolean") {
-      response.status(400);
-      throw new Error("Campo visibilidade Inválido.");
+  private validateVisibility(status: boolean) {
+    if (typeof status !== "boolean") {
+      throw new Error("Campo visibilidade inválido.");
     }
   }
 }

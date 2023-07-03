@@ -24,7 +24,7 @@ export const createInstance = asyncHandler(
 
     const cartItemData = request.body;
 
-    ProductInstanceValidator.validate(response, cartItemData);
+    ProductInstanceValidator.checkCreate(cartItemData);
     const { product }: IProductInstance = cartItemData;
 
     const instanceOwner = await UserRepository.getUser(request.user.id);

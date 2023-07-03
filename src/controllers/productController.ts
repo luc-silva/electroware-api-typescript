@@ -164,7 +164,7 @@ export const createProduct = asyncHandler(
     }
 
     const requestBody = JSON.parse(request.body.product);
-    ProductValidator.validate(response, requestBody);
+    ProductValidator.checkCreate(requestBody);
 
     const { price, quantity }: IProduct = requestBody;
 
@@ -214,7 +214,7 @@ export const updateProduct = asyncHandler(
     }
 
     const productDataBody = request.body;
-    ProductValidator.validate(response, productDataBody);
+    ProductValidator.checkCreate(productDataBody);
 
     const { price, quantity }: IProduct = productDataBody;
 

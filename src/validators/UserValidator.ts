@@ -1,101 +1,66 @@
-import { Response } from "express";
-import { Validator } from "../../interface";
-
-interface UserNameFieldname {
-  first: string;
-  last: string;
-}
-interface UserLocationField {
-  country: string;
-  state: string;
-}
-interface UserBody {
-  email: string;
-  password: string;
-  new_password: string;
-  name: UserNameFieldname;
-  location: UserLocationField;
-  description: string;
-}
-
-class UserValidator implements Validator {
+class UserValidator {
   private emailRegex = /.*@\w*.\.com/g;
+  private DESCRIPTION_LENGTH = 250;
 
-  public validate(response: Response, requestBody: UserBody): void {
-    const { name, description } = requestBody;
-
-    if (!name.first || name.first.length > 10 || name.last.length > 10) {
-      response.status(400);
-      throw new Error("Campo nome inválido.");
-    }
-
-    if (description.length > 250) {
-      response.status(400);
-      throw new Error("Campo descrição inválido.");
-    }
+  public checkCreate(request_body: UserDTO) {
+    this.validateName(request_body.name);
+    this.validateDescription(request_body.description);
   }
 
-  public validateLogin(response: Response, requestBody: UserBody): void {
-    this.validateEmail(response, requestBody.email);
-    this.validatePassword(response, requestBody.password);
+  public checkLogin(request_body: UserDTO) {
+    this.validateEmail(request_body.email);
+    this.validatePassword(request_body.password);
   }
 
-  public validatePasswordChange(response: Response, requestBody: UserBody) {
-    const { new_password } = requestBody;
-    this.validatePassword(response, new_password);
+  public checkPasswordChange(request_body: UserDTO) {
+    this.validatePassword(request_body.new_password);
   }
 
-  public validateEmailChange(response: Response, requestBody: UserBody) {
-    const { email } = requestBody;
-    this.validateEmail(response, email);
+  public checkEmailChange(request_body: UserDTO) {
+    this.validateEmail(request_body.email);
   }
 
-  public validateRegistration(response: Response, requestBody: UserBody) {
-    const { email, password, name, location, description } = requestBody;
-    this.validateEmail(response, email);
-    this.validatePassword(response, password);
-    this.validateName(response, name);
-    this.validateLocation(response, location);
-    this.validateDescription(response, description);
+  public checkRegistration(request_body: UserDTO) {
+    this.validateEmail(request_body.email);
+    this.validatePassword(request_body.password);
+    this.validateName(request_body.name);
+    this.validateLocation(request_body.location);
+    this.validateDescription(request_body.description);
   }
 
-  private validateEmail(response: Response, email: string) {
+  private validateEmail(email: string) {
     if (!email || !email.match(this.emailRegex)) {
-      response.status(400);
       throw new Error("Campo email inválido.");
     }
   }
 
-  private validatePassword(response: Response, password: string) {
+  private validatePassword(password: string) {
     if (!password || password.length < 8) {
-      response.status(400);
       throw new Error("Campo senha inválido.");
     }
   }
 
-  private validateName(response: Response, name: UserNameFieldname) {
-    if (
-      !name ||
-      !name.first ||
-      name.first.length > 10 ||
-      name.last.length > 10
-    ) {
-      response.status(400);
+  private validateName(name: { first: string; last: string }) {
+    if (!name || !name.first) {
       throw new Error("Campo nome inválido.");
+    }
+    if (name.first.length > 10 || name.last.length > 10) {
+      throw new Error("Campo sobrenome inválido.");
     }
   }
 
-  private validateDescription(response: Response, description: string) {
-    if (description && description.length > 250) {
-      response.status(400);
+  private validateDescription(description: string) {
+    if (description && description.length > this.DESCRIPTION_LENGTH) {
       throw new Error("Campo descrição inválido.");
     }
   }
 
-  private validateLocation(response: Response, location: UserLocationField) {
-    if (!location.country || !location.state) {
-      response.status(400);
-      throw new Error("Campo estado ou país inválidos.");
+  private validateLocation(location: { country: string; state: string }) {
+    if (!location.country) {
+      throw new Error("Campo país inválido.");
+    }
+    if (!location.state) {
+      throw new Error("Campo estado inválido.");
     }
   }
 }

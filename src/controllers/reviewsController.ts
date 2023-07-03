@@ -147,7 +147,7 @@ export const submitReview = asyncHandler(
       throw new Error("Dados Inválidos.");
     }
 
-    ReviewValidator.validate(response, request.body);
+    ReviewValidator.checkCreate(request.body);
     const { product, text, score, productOwner } = request.body;
 
     const reviewer = await UserRepository.getUser(request.user.id);
@@ -217,7 +217,7 @@ export const updateReview = asyncHandler(
       throw new Error("Dados Inválidos.");
     }
 
-    ReviewValidator.validateUpdate(response, request.body);
+    ReviewValidator.checkUpdate(request.body);
     const { text, score } = request.body;
 
     const { id } = request.params;

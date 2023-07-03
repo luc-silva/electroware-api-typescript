@@ -28,7 +28,7 @@ export const loginUser = asyncHandler(
     }
 
     const { email, password } = request.body;
-    UserValidator.validateLogin(response, request.body);
+    UserValidator.checkLogin(request.body);
 
     const user = await UserRepository.getUserInfoWithEmail(email);
     if (!user) {
@@ -68,7 +68,7 @@ export const registerUser = asyncHandler(
     }
 
     const userData = request.body;
-    UserValidator.validateRegistration(response, userData);
+    UserValidator.checkRegistration(userData);
 
     const userExist = await UserRepository.getUserInfoWithEmail(userData.email);
     if (userExist) {
@@ -115,7 +115,7 @@ export const updateUserPassword = asyncHandler(
     }
 
     const { password, new_password } = request.body;
-    UserValidator.validatePasswordChange(response, request.body);
+    UserValidator.checkPasswordChange(request.body);
 
     if (!(await bcrypt.compare(password, user.password))) {
       ResponseHandler.handleResponse(response, 401, "Senha Inválida.");
@@ -152,7 +152,7 @@ export const updateUserEmail = asyncHandler(
     }
 
     const { email } = request.body;
-    UserValidator.validateEmailChange(response, request.body);
+    UserValidator.checkEmailChange(request.body);
     const userWithEmail = await UserRepository.getUserInfoWithEmail(email);
     if (userWithEmail) {
       ResponseHandler.handleResponse(
@@ -329,7 +329,7 @@ export const updateUserInfo = asyncHandler(
     }
 
     const updatedUserData = request.body;
-    UserValidator.validate(response, updatedUserData);
+    UserValidator.checkCreate(updatedUserData);
 
     const { id } = request.params;
     const userExist = await UserRepository.getUser(id);

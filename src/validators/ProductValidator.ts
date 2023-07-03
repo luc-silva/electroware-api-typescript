@@ -1,15 +1,4 @@
-import { Response } from "express";
-
-interface ProductBody {
-  name: string;
-  price: number;
-  category: number;
-  quantity: number;
-  description: string;
-  brand: string;
-  on_sale: boolean;
-  discount: number;
-}
+import { checkIfValidId } from "../utils/operations";
 
 class ProductValidator {
   private NAME_MAX_LENGTH = 30;
@@ -18,51 +7,57 @@ class ProductValidator {
   private MAX_PRICE = 10000;
   private MAX_QUANTITY = 3000;
 
-  public validate(response: Response, productBody: ProductBody) {
-    const { name, price, category, quantity, description, brand, discount } =
-      productBody;
-    const convertedQuantity = Number(quantity);
-    const convertedPrice = Number(price);
+  public checkCreate(product_body: ProductDTO) {
+    this.validateName(product_body.name);
+    this.validatePrice(product_body.price);
+    this.validateCategory(product_body.category);
+    this.validateQuantity(product_body.quantity);
+    this.validateDescription(product_body.description);
+    this.validateBrand(product_body.brand);
+    this.validateDiscount(product_body.discount);
+  }
 
-    if (
-      (!name && typeof name !== "string") ||
-      name.length > this.NAME_MAX_LENGTH
-    ) {
-      response.status(400);
-      throw new Error("Campo nome Inválido.");
+  private validateName(name: string) {
+    if (name.length > this.NAME_MAX_LENGTH) {
+      throw new Error("Campo nome inválido.");
     }
-    if (!category && typeof category !== "string") {
-      response.status(400);
-      throw new Error("Campo categoria Inválido.");
+  }
+
+  private validatePrice(price: number) {
+    if (!price || price > this.MAX_PRICE) {
+      throw new Error("Campo preço inválido.");
     }
+  }
+
+  private validateCategory(categoryId: string) {
+    if (!checkIfValidId(categoryId)) {
+      throw new Error("Campo categoria inválido.");
+    }
+  }
+
+  private validateQuantity(quantity: number) {
+    if (!Number.isInteger(quantity) || quantity > this.MAX_QUANTITY) {
+      throw new Error("Campo quantidade inválido.");
+    }
+  }
+
+  private validateDescription(description: string) {
     if (
-      (!description && typeof description !== "string") ||
+      typeof description !== "string" ||
       description.length > this.DESCRIPTION_MAX_LENGTH
     ) {
-      response.status(400);
-      throw new Error("Campo descrição Inválido.");
+      throw new Error("Campo descrição inválido.");
     }
+  }
 
-    if (
-      (!brand && typeof brand !== "string") ||
-      brand.length > this.BRAND_MAX_LENGTH
-    ) {
-      response.status(400);
-      throw new Error("Campo marca Inválido.");
+  private validateBrand(brand: string) {
+    if (typeof brand !== "string" || brand.length > this.BRAND_MAX_LENGTH) {
+      throw new Error("Campo marca inválido.");
     }
-    if (isNaN(convertedPrice) || convertedPrice > this.MAX_PRICE) {
-      response.status(400);
-      throw new Error("Campo preço Inválido.");
-    }
-    if (
-      !Number.isInteger(convertedQuantity) ||
-      convertedQuantity > this.MAX_QUANTITY
-    ) {
-      response.status(400);
-      throw new Error("Campo quantidade Inválido.");
-    }
+  }
+
+  private validateDiscount(discount: number) {
     if (isNaN(discount)) {
-      response.status(400);
       throw new Error("Campo disconto inválido");
     }
   }

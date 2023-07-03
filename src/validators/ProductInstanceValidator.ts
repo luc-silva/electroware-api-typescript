@@ -1,31 +1,31 @@
-import { Response } from "express";
-import { Validator } from "../../interface";
+import { checkIfValidId } from "../utils/operations";
 
-interface ProductInstanceBody {
-  user: string;
-  product: string;
-  price: number;
-  quantity: number;
-}
+class ProductInstanceValidator {
+  public checkCreate(request_body: CartItemDTO) {
+    this.validateUser(request_body.user);
+    this.valdiateQuantity(request_body.quantity);
+    this.validateProduct(request_body.product);
+    this.validatePrice(request_body.price);
+  }
 
-class ProductInstanceValidator implements Validator {
-  public validate(response: Response, requestBody: ProductInstanceBody) {
-    const { user, product, price, quantity } = requestBody;
-    if (!user && typeof user !== "string") {
-      response.status(400);
-      throw new Error("Campo usuário Inválido.");
+  private validateUser(user: string) {
+    if (!user || typeof user !== "string" || !checkIfValidId(user)) {
+      throw new Error("Campo usuário inválido.");
     }
-    if (!product && typeof product !== "string") {
-      response.status(400);
-      throw new Error("Campo produto Inválido.");
+  }
+  private validateProduct(product: string) {
+    if (!product || typeof product !== "string" || !checkIfValidId(product)) {
+      throw new Error("Campo produto inválido.");
     }
-    if (!price && typeof price !== "number") {
-      response.status(400);
-      throw new Error("Campo preço Inválido.");
+  }
+  private validatePrice(price: number) {
+    if (!price || typeof price !== "number") {
+      throw new Error("Campo preço inválido.");
     }
+  }
+  private valdiateQuantity(quantity: number) {
     if (!Number.isInteger(quantity)) {
-      response.status(400);
-      throw new Error("Dados Inválidos.");
+      throw new Error("Campo quantidade inválido.");
     }
   }
 }

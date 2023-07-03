@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import WishlistCollectionValidator from "../validators/WishlistCollectionValidator";
 import WishlistCollectionRepository from "../repositories/WishlistCollectionRepository";
-import { ICollectionData } from "../../interface";
 import UserRepository from "../repositories/UserRepository";
 import WishlistItemRepository from "../repositories/WishlistItemRepository";
 import { startSession } from "mongoose";
@@ -41,8 +40,8 @@ export const createCollection = asyncHandler(
       throw new Error("Dados inválidos.");
     }
 
-    const collectionData: ICollectionData = request.body;
-    WishlistCollectionValidator.validate(response, collectionData);
+    const collectionData: CollectionDTO = request.body;
+    WishlistCollectionValidator.checkCreate(collectionData);
 
     const user = await UserRepository.getUser(request.user.id);
     if (!user) {
@@ -90,8 +89,8 @@ export const updateCollection = asyncHandler(
       throw new Error("Coleção Não Encontrada.");
     }
 
-    const collectionData: ICollectionData = request.body;
-    WishlistCollectionValidator.validate(response, collectionData);
+    const collectionData: CollectionDTO = request.body;
+    WishlistCollectionValidator.checkCreate(collectionData);
 
     if (
       collectionData.user !== request.user.id ||

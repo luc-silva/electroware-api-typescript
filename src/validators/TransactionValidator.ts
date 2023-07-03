@@ -1,27 +1,13 @@
-import { Response } from "express";
-import { Validator } from "../../interface";
-
-enum PaymentOptions {
-  bankSlip = "Boleto",
-  creditCard = "Cartão de Crédito",
-  bitcoin = "Bitcoin",
-  pix = "Pix",
-}
-
-interface TransactionBody {
-  paymentMethod: PaymentOptions;
-}
-
-class TransactionValidator implements Validator {
-  public validate(response: Response, requestBody: TransactionBody): void {
-    const { paymentMethod } = requestBody;
-
+class TransactionValidator {
+  public checkCreate(request_body: TransactionBody): void {
+    this.validatePaymentMethod(request_body.paymentMethod);
+  }
+  private validatePaymentMethod(payment_method: PaymentOptions) {
     if (
-      (!paymentMethod && typeof paymentMethod !== "string") ||
-      !Object.values(PaymentOptions).includes(paymentMethod)
+      (!payment_method && typeof payment_method !== "string") ||
+      !Object.values(PaymentOptions).includes(payment_method)
     ) {
-      response.status(400);
-      throw new Error("Método de pagamento inválido.");
+      throw new Error("Campo método de pagamento inválido.");
     }
   }
 }

@@ -7,5 +7,5 @@ export const errorMiddleware = (
   next: any
 ) => {
   response.status(response.statusCode < 400 ? 400 : response.statusCode);
-  response.json(err.message);
+  response.json({ message: err.message });
 };

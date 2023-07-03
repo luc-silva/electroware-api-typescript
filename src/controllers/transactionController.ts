@@ -26,7 +26,7 @@ export const createProductTransaction = asyncHandler(
       throw new Error("Usuário não encontrado.");
     }
 
-    TransactionValidator.validate(response, request.body);
+    TransactionValidator.checkCreate(request.body);
     //const { paymentMethod } = request.body;
 
     const productsBought = await CartItemRepository.getCartItemsByUser(user.id);
