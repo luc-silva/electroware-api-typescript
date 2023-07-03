@@ -14,7 +14,7 @@ describe("Category Controller", () => {
     const response = await supertest(endpoint).get(`/${category_id}`);
 
     expect(response.status).toBe(400);
-    expect(response.body).toEqual("Invalid Object ID.");
+    expect(response.body).toEqual({ message: "Invalid Object ID." });
   });
 
   test("Return correctly an array of products from a categories", async () => {
