@@ -1,0 +1,3 @@
+interface TransactionBody {
+  paymentMethod: PaymentOptions;
+}
