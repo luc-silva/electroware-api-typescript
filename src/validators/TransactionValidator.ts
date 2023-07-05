@@ -1,5 +1,5 @@
 class TransactionValidator {
-  public checkCreate(request_body: TransactionBody): void {
+  public checkCreate(request_body: TransactionItemDTO): void {
     this.validatePaymentMethod(request_body.paymentMethod);
   }
   private validatePaymentMethod(payment_method: PaymentOptions) {
