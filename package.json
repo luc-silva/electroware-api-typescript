@@ -9,7 +9,9 @@
     "format": "prettier --write ./src",
     "test": "jest src/tests",
     "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules ./src/server.ts",
-    "dev:nest": "nest start"
+    "dev:nest": "nest start",
+    "dev:build": "nest build",
+    "server": "npm run dev:build && node dist/main.js"
   },
   "lint-staged": {
     "*.ts": [
