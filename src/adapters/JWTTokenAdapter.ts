@@ -1,5 +1,4 @@
 import { sign, verify } from "jsonwebtoken";
-import { IDecodedUserToken } from "../../interface";
 import { TokenGenerator } from "./TokenAdapter";
 
 class JWTTokenAdapter implements TokenGenerator {
@@ -9,8 +8,12 @@ class JWTTokenAdapter implements TokenGenerator {
     });
   }
 
-  public read(token: string): IDecodedUserToken {
-    return verify(token, "123") as IDecodedUserToken;
+  public read(token: string): DecodeToken {
+    return verify(token, "123") as DecodeToken;
+  }
+
+  private uncapsulate(token: string): string {
+    return token.split(" ")[1];
   }
 }
 
