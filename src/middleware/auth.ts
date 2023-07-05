@@ -7,7 +7,6 @@ import { NotAuthorizedException } from "../exceptions/NotAuthorizedException";
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
-    console.log("passou");
     if (
       !req.headers.authorization ||
       !req.headers.authorization.startsWith("Bearer")

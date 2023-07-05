@@ -34,7 +34,7 @@ export class WishlistItemController {
    */
   @Delete("/:id")
   async removeWishlistItem(@Req() request: Request) {
-    await this.removeWishlistItem(request);
+    await this.wishlistItemService.removeWishlistItem(request);
     return { message: "Feito." };
   }
 }
