@@ -8,7 +8,8 @@
     "lint": "eslint src",
     "format": "prettier --write ./src",
     "test": "jest src/tests",
-    "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules ./src/server.ts"
+    "dev": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules ./src/server.ts",
+    "dev:nest": "nest start"
   },
   "lint-staged": {
     "*.ts": [
@@ -26,6 +27,9 @@
   "private": true,
   "license": "ISC",
   "dependencies": {
+    "@nestjs/common": "^10.0.4",
+    "@nestjs/core": "^10.0.4",
+    "@nestjs/platform-express": "^10.0.5",
     "@types/bcryptjs": "^2.4.2",
     "@types/multer": "^1.4.7",
     "bcryptjs": "^2.4.3",
@@ -35,11 +39,14 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.10.0",
     "multer": "^1.4.5-lts.1",
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.20",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.6.6",
     "@commitlint/config-conventional": "^17.6.6",
+    "@nestjs/cli": "^10.1.4",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
