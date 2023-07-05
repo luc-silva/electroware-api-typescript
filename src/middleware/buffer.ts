@@ -1,5 +1,5 @@
+import { NestMiddleware } from "@nestjs/common";
 import { NextFunction, Request, Response } from "express";
-import asyncHandler from "express-async-handler";
 import multer from "multer";
 import { extname } from "path";
 const storage = multer.memoryStorage();
@@ -19,8 +19,8 @@ const upload = multer({
   },
 }).single("imageField");
 
-export const imageUploader = asyncHandler(
-  async (request: Request, response: Response, next: NextFunction) => {
+export class ImageUploader implements NestMiddleware {
+  async use(request: Request, response: Response, next: NextFunction) {
     upload(request, response, (err) => {
       if (err) {
         response.status(400).json({ message: err.message });
@@ -29,4 +29,4 @@ export const imageUploader = asyncHandler(
       }
     });
   }
-);
+}
