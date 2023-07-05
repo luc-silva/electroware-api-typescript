@@ -3,7 +3,7 @@ import supertest from "supertest";
 describe("Image Controller - User: ", () => {
   const endpoint = "http://localhost:6060/api/image";
 
-  test("Upload should return validation error if no data has been uploaded", async () => {
+  test("Upload should return auth error if no token has been provided", async () => {
     const response = await supertest(endpoint).post("/upload");
 
     expect(response.status).toBe(401);
@@ -14,6 +14,7 @@ describe("Image Controller - User: ", () => {
     const response = await supertest(endpoint).get(`/user/${user_id}`);
 
     expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({ _id: {}, data: {} });
   });
 
   test("Should get product image with given id", async () => {

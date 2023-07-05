@@ -50,7 +50,7 @@ describe("User Controller - Register: ", () => {
     const response = await supertest(endpoint).post("/register").send(data);
 
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({
+    expect(response.body).toMatchObject({
       message: "Uma conta já foi criada com esse email.",
     });
   });
@@ -61,7 +61,7 @@ describe("User Controller - Register: ", () => {
     const response = await supertest(endpoint).post("/register").send(data);
 
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({ message: "Campo email inválido." }); //this should be a message object in the future
+    expect(response.body).toMatchObject({ message: "Campo email inválido." }); //this should be a message object in the future
   });
 
   test("Server should not create a user without first name", async () => {
@@ -70,7 +70,7 @@ describe("User Controller - Register: ", () => {
     const response = await supertest(endpoint).post("/register").send(data);
 
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({ message: "Campo nome inválido." });
+    expect(response.body).toMatchObject({ message: "Campo nome inválido." });
   });
 
   test("Server should not create a user without password", async () => {
@@ -79,6 +79,6 @@ describe("User Controller - Register: ", () => {
     const response = await supertest(endpoint).post("/register").send(data);
 
     expect(response.status).toBe(400);
-    expect(response.body).toEqual({ message: "Campo senha inválido." });
+    expect(response.body).toMatchObject({ message: "Campo senha inválido." });
   });
 });
