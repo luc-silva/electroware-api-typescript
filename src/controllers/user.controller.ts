@@ -107,11 +107,11 @@ export class UserController {
   }
 
   /**
-   * POST, AUTH REQUIRED - Increase the user balance with given amount.
+   * PATCH, AUTH REQUIRED - Increase the user balance with given amount.
    * @param {Request} request - The HTTP request object containing the user ID.
    * @throws throws error if no user has been found, or if the amount isn't valid.
    */
-  @Post("/billings/add")
+  @Patch("/billings/add")
   async addFunds(@Req() request: Request) {
     await this.userService.addFunds(request);
     return { message: "Valor Adicionado." };

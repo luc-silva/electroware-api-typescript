@@ -5,17 +5,6 @@ import {
   RequestMethod,
 } from "@nestjs/common";
 
-//services
-import { CartItemService } from "../services/CartItem.service";
-import { CategoryService } from "../services/Category.service";
-import { ImageInstanceService } from "../services/ImageInstance.service";
-import { ProductService } from "../services/Product.service";
-import { ReviewService } from "../services/Review.service";
-import { TransactionService } from "../services/Transaction.service";
-import { UserService } from "../services/User.service";
-import { WishlistCollectionService } from "../services/WishlistCollection.service";
-import { WishlistItemService } from "../services/WishlistItem.service";
-
 //controllers
 import { CartItemController } from "./cartItem.controller";
 import { CategoryController } from "./category.controller";
@@ -55,7 +44,7 @@ export class ControllerModule implements NestModule {
         },
         { path: "api/user/private/details/email", method: RequestMethod.PATCH },
         { path: "api/user/private/:id", method: RequestMethod.GET },
-        { path: "api/user/billings/add", method: RequestMethod.POST },
+        { path: "api/user/billings/add", method: RequestMethod.PATCH },
         { path: "api/user/:id", method: RequestMethod.DELETE },
         { path: "api/user/:id", method: RequestMethod.PUT },
         { path: "api/user/:id/transactions", method: RequestMethod.GET },
