@@ -1,4 +1,5 @@
-interface CartItemDTO {
+interface ProductInstance {
+  id?: string;
   user: string;
   seller: string;
   product: string;
