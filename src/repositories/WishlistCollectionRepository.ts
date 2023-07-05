@@ -1,14 +1,14 @@
 import { SessionOption, Types } from "mongoose";
-import { ICollectionData } from "../../interface";
 import WishlistCollection from "../models/WishlistCollection";
-import { Repository } from "./Repository";
+import { Injectable } from "@nestjs/common";
 
-class WishlistCollectionRepository extends Repository {
+@Injectable()
+export class WishlistCollectionRepository {
   /**
    * Create a wishlist collection with given data.
    * @param collectionData Data containing name, user and privated status.
    */
-  public async createCollection(collectionData: ICollectionData) {
+  public async createCollection(collectionData: CollectionDTO): Promise<void> {
     await WishlistCollection.create(collectionData);
   }
 
@@ -19,9 +19,8 @@ class WishlistCollectionRepository extends Repository {
    */
   public async updateCollectionDetails(
     collectionId: string,
-    collectionData: ICollectionData
-  ) {
-    this.validateObjectId(collectionId);
+    collectionData: CollectionDTO
+  ): Promise<void> {
     await WishlistCollection.findByIdAndUpdate(collectionId, collectionData);
   }
 
@@ -29,8 +28,10 @@ class WishlistCollectionRepository extends Repository {
    * Delete a collection with given collection id.
    * @param collectionId Valid collection ObjectId.
    */
-  public async deleteCollection(collectionId: string, session?: SessionOption) {
-    this.validateObjectId(collectionId);
+  public async deleteCollection(
+    collectionId: string,
+    session?: SessionOption
+  ): Promise<void> {
     await WishlistCollection.findByIdAndDelete(
       collectionId,
       session ? session : undefined
@@ -42,8 +43,9 @@ class WishlistCollectionRepository extends Repository {
    * @param collectionId Valid collection ObjectId.
    * @returns Returns an object containing collection details.
    */
-  public async getCollection(collectionId: string) {
-    this.validateObjectId(collectionId);
+  public async getCollectionById(
+    collectionId: string
+  ): Promise<Collection | null> {
     return await WishlistCollection.findById(collectionId);
   }
 
@@ -52,9 +54,9 @@ class WishlistCollectionRepository extends Repository {
    * @param userId Valid user ObjectId.
    * @returns Returns an array of wishlist collections id.
    */
-  public async getCollectionsFromUser(userId: string) {
-    this.validateObjectId(userId);
-
+  public async getEveryCollectionsByUserId(
+    userId: string
+  ): Promise<Collection[]> {
     return await WishlistCollection.find({
       user: new Types.ObjectId(userId),
     });
@@ -65,9 +67,9 @@ class WishlistCollectionRepository extends Repository {
    * @param userId Valid user ObjectId.
    * @returns Returns an array of wishlist collections id.
    */
-  public async getPublicCollectionsFromUser(userId: string) {
-    this.validateObjectId(userId);
-
+  public async getPublicCollectionsByUserId(
+    userId: string
+  ): Promise<Collection[]> {
     return await WishlistCollection.find({
       user: new Types.ObjectId(userId),
       privated: false,
@@ -79,13 +81,13 @@ class WishlistCollectionRepository extends Repository {
    * @param name Collection name.
    * @returns Returns an object of the found collection.
    */
-  public async getCollectionByNameFromUser(userId: string, name: string) {
-    this.validateObjectId(userId);
-
+  public async getCollectionByNameFromUser(
+    userId: string,
+    name: string
+  ): Promise<Collection | null> {
     return await WishlistCollection.findOne({
       user: new Types.ObjectId(userId),
       name,
     });
   }
 }
-export default new WishlistCollectionRepository();

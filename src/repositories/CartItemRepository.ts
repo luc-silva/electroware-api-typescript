@@ -1,14 +1,14 @@
-import { IProductInstance } from "../../interface";
+import { Injectable } from "@nestjs/common";
 import ProductInstance from "../models/ProductInstance";
-import { Repository } from "./Repository";
 
-class CartItemRepository extends Repository {
+@Injectable()
+export class CartItemRepository {
   /**
    *  Get details of a shopping cart item.
    * @param objectId - Cart item ObjectId.
    * @returns Returns cart item details object.
    */
-  public async getCartItem(objectId: string) {
+  public async getCartItem(objectId: string): Promise<CartItem | null> {
     return await ProductInstance.findById(objectId);
   }
 
@@ -17,7 +17,9 @@ class CartItemRepository extends Repository {
    * @param objectId - Cart item ObjectId.
    * @returns Returns cart item details object.
    */
-  public async getCartItemAndPopulate(objectId: string) {
+  public async getCartItemAndPopulate(
+    objectId: string
+  ): Promise<CartItem | null> {
     return await ProductInstance.findById(objectId)
       .select({ product: 1, price: 1, quantity: 1 })
       .populate("seller", { name: 1 })
@@ -31,7 +33,10 @@ class CartItemRepository extends Repository {
    *@param userId - User ObjectId.
    *@returns Returns cart item details object.
    */
-  public async getCartItemByIdAndUser(productId: string, userId: string) {
+  public async getCartItemByIdAndUser(
+    productId: string,
+    userId: string
+  ): Promise<CartItem | null> {
     return await ProductInstance.findOne({
       product: productId,
       user: userId,
@@ -43,8 +48,7 @@ class CartItemRepository extends Repository {
    * @param objectId - User ObjectId.
    * @returns Returns cart item details object.
    */
-  public async getCartItemsByUser(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getCartItemsByUser(objectId: string): Promise<CartItem[] | []> {
     return await ProductInstance.find({ user: objectId });
   }
 
@@ -52,7 +56,7 @@ class CartItemRepository extends Repository {
    *Create a shopping cart item with given data such as products, user, seller and price.
    * @param cartProductData - Object containing seller, product details and user.
    */
-  public async createCartItem(cartProductData: IProductInstance) {
+  public async createCartItem(cartProductData: CartItemDTO): Promise<void> {
     await ProductInstance.create(cartProductData);
   }
 
@@ -60,9 +64,7 @@ class CartItemRepository extends Repository {
    *Delete shopping cart item with given id.
    * @param objectId - Cart item ObjectId.
    */
-  public async deleteCartItem(objectId: string) {
+  public async deleteCartItem(objectId: string): Promise<void> {
     await ProductInstance.findByIdAndDelete(objectId);
   }
 }
-
-export default new CartItemRepository();

@@ -1,16 +1,16 @@
 import { SessionOption } from "mongoose";
 import WishlistItem from "../models/WishlistItem";
-import { Repository } from "./Repository";
+import { Injectable } from "@nestjs/common";
 
-class WishlistItemRepository extends Repository {
+@Injectable()
+export class WishlistItemRepository {
   /**
    * Get wishlist item with given id.
    * @param objectId - Wishlist item ObjectId.
    * @returns Return wishlist item details object.
    */
-  public async getWishlistItem(objectId: string) {
-    this.validateObjectId(objectId);
-    return WishlistItem.findById(objectId);
+  public async getWishlistItem(objectId: string): Promise<WishlistItem | null> {
+    return await WishlistItem.findById(objectId);
   }
 
   /**
@@ -18,8 +18,9 @@ class WishlistItemRepository extends Repository {
    * @param objectId - User ObjectId.
    * @returns Returns wishlist item details object.
    */
-  public async getWishlistItemsByUser(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getWishlistItemsByUser(
+    objectId: string
+  ): Promise<WishlistItem[]> {
     return await WishlistItem.find({ user: objectId });
   }
 
@@ -28,8 +29,9 @@ class WishlistItemRepository extends Repository {
    * @param objectId - Collection ObjectId.
    * @returns Returns wishlist item details object.
    */
-  public async getWishlistItemsByCollection(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getWishlistItemsByCollection(
+    objectId: string
+  ): Promise<WishlistItem[]> {
     return await WishlistItem.find({ group: objectId });
   }
 
@@ -44,9 +46,7 @@ class WishlistItemRepository extends Repository {
     userId: string,
     productId: string,
     collectionId: string
-  ) {
-    this.validateObjectId(userId);
-    this.validateObjectId(collectionId);
+  ): Promise<WishlistItem | null> {
     return await WishlistItem.findOne({
       user: userId,
       product: productId,
@@ -58,8 +58,7 @@ class WishlistItemRepository extends Repository {
    * Delete wishlist item with given id.
    * @param objectId Wishlist item ObjectId
    */
-  public async deleteWishlistItem(objectId: string) {
-    this.validateObjectId(objectId);
+  public async deleteWishlistItem(objectId: string): Promise<void> {
     await WishlistItem.findByIdAndDelete(objectId);
   }
 
@@ -67,11 +66,10 @@ class WishlistItemRepository extends Repository {
    * Delete wishlist item with given collection id.
    * @param objectId Collection ObjectId.
    */
-  public async deleteWishlistItemByCollection(
+  public async deleteWishlistItemsByCollection(
     objectId: string,
     session?: SessionOption
-  ) {
-    this.validateObjectId(objectId);
+  ): Promise<void> {
     await WishlistItem.deleteMany(
       { group: objectId },
       session ? session : undefined
@@ -86,10 +84,7 @@ class WishlistItemRepository extends Repository {
   public async createWishlistItem(
     userId: string,
     itemData: { id: string; group: string; product: string }
-  ) {
-    this.validateObjectId(userId);
+  ): Promise<void> {
     await WishlistItem.create({ ...itemData, user: userId });
   }
 }
-
-export default new WishlistItemRepository();

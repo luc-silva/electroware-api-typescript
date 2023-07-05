@@ -1,27 +1,12 @@
 import { startSession } from "mongoose";
-import { Repository } from "./Repository";
-
 import Product from "../models/Product";
 import ProductInstance from "../models/ProductInstance";
 import Transaction from "../models/Transaction";
 import User from "../models/User";
-import { IProductInstance } from "../../interface";
+import { Injectable } from "@nestjs/common";
 
-interface TransactionData extends IProductInstance {
-  id: string;
-  user: string;
-  seller: string;
-  product: string;
-  price: number;
-  quantity: number;
-}
-interface TransactioItemData {
-  paymentMethod: string;
-  products: TransactionData[];
-  totalPrice: number;
-}
-
-class TransactionRepository extends Repository {
+@Injectable()
+export class TransactionRepository {
   /**
    * Create transaction item with given data.
    * @param userId - User ObjectId.
@@ -29,8 +14,8 @@ class TransactionRepository extends Repository {
    */
   public async createTransactionItem(
     userId: string,
-    trasactionItemData: TransactioItemData
-  ) {
+    trasactionItemData: TransactionItemDTO
+  ): Promise<void> {
     const session = await startSession();
     await session.withTransaction(async () => {
       const data = {
@@ -66,7 +51,7 @@ class TransactionRepository extends Repository {
           { session }
         );
 
-        await ProductInstance.findByIdAndDelete(productInstance.id, {
+        await ProductInstance.findByIdAndDelete(productInstance.id as string, {
           session,
         });
       }
@@ -81,10 +66,9 @@ class TransactionRepository extends Repository {
    * @param objectId User ObjectId.
    * @returns Returns detailed transaction items.
    */
-  public async getTrasactionItemsByBuyer(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getTrasactionItemsByBuyer(
+    objectId: string
+  ): Promise<TransactionItem[]> {
     return await Transaction.find({ buyer: objectId });
   }
 }
-
-export default new TransactionRepository();

@@ -2,15 +2,15 @@ import { startSession, Types } from "mongoose";
 import ImageInstance from "../models/ImageInstance";
 import Product from "../models/Product";
 import Review from "../models/Review";
-import { Repository } from "./Repository";
-import { ImageType, IProduct } from "../../interface";
+import { Injectable } from "@nestjs/common";
 
-class ProductRepository extends Repository {
+@Injectable()
+export class ProductRepository {
   /**
    * Get ids of the most recent created products.
    * @returns Returns IDs of products.
    */
-  public async getRecentProducts() {
+  public async getRecentProducts(): Promise<{ id?: string }[]> {
     return await Product.find()
       .select({ id: 1 })
       .limit(12)
@@ -21,7 +21,7 @@ class ProductRepository extends Repository {
    * Get ids of product with active discount.
    * @returns Returns IDs of products.
    */
-  public async getDiscountedProducts() {
+  public async getDiscountedProducts(): Promise<{ id?: string }[]> {
     return await Product.find({ on_sale: true })
       .select({ id: 1 })
       .sort({ updatedAt: -1 });
@@ -32,9 +32,7 @@ class ProductRepository extends Repository {
    * @param objectId - Product ObjectId.
    * @returns Returns product score.
    */
-  public async getAverageScoreFromProduct(objectId: string) {
-    this.validateObjectId(objectId);
-
+  public async getAverageScoreFromProduct(objectId: string): Promise<number> {
     const score = await Review.aggregate([
       {
         $group: {
@@ -56,9 +54,9 @@ class ProductRepository extends Repository {
    * @param objectId - Product ObjectId.
    * @returns Returns product score groups.
    */
-  public async getRatingsMetrics(objectId: string) {
-    this.validateObjectId(objectId);
-
+  public async getRatingsMetrics(
+    objectId: string
+  ): Promise<RatingMetric[] | null> {
     const results = await Review.aggregate([
       { $match: { product: new Types.ObjectId(objectId) } },
       {
@@ -94,7 +92,9 @@ class ProductRepository extends Repository {
    * @param keyword - String to search for an item.
    * @returns Returns IDs of products.
    */
-  public async searchProductWithKeyword(keyword: string) {
+  public async getProductsIdsWithKeyword(
+    keyword: string
+  ): Promise<{ id?: string }[]> {
     return await Product.find({
       name: { $regex: new RegExp(keyword, "i") },
     }).select({ id: 1 });
@@ -105,8 +105,7 @@ class ProductRepository extends Repository {
    * @param objectId - Product ObjectId.
    * @returns Returns product details object.
    */
-  public async getProductDetails(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getProductDetails(objectId: string): Promise<Product | null> {
     return await Product.findById(objectId);
   }
 
@@ -116,7 +115,10 @@ class ProductRepository extends Repository {
    * @param imageData - Image data such as buffer, related user and image type.
    * @returns - Product ID.
    */
-  public async createProduct(productData: IProduct, imageData: ImageType) {
+  public async createProduct(
+    productData: ProductDTO,
+    imageData: ImageInstanceDTO
+  ): Promise<string> {
     const session = await startSession();
     let productID = "";
 
@@ -142,8 +144,10 @@ class ProductRepository extends Repository {
    * @param objectId - Product ObjectId.
    * @param updatedProductData - Product data.
    */
-  public async updateProduct(objectId: string, updatedProductData: IProduct) {
-    this.validateObjectId(objectId);
+  public async updateProduct(
+    objectId: string,
+    updatedProductData: ProductDTO
+  ): Promise<void> {
     await Product.findByIdAndUpdate(objectId, updatedProductData);
   }
 
@@ -151,9 +155,7 @@ class ProductRepository extends Repository {
    * Delete a product and related items with given product id
    * @param objectId - Product ObjectId.
    */
-  public async deleteProduct(objectId: string) {
-    this.validateObjectId(objectId);
-
+  public async deleteProduct(objectId: string): Promise<void> {
     const session = await startSession();
     await session.withTransaction(async () => {
       await Review.deleteMany({ product: objectId }, { session });
@@ -164,5 +166,3 @@ class ProductRepository extends Repository {
     session.endSession();
   }
 }
-
-export default new ProductRepository();

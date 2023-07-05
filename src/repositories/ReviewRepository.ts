@@ -1,15 +1,15 @@
-import { IReview } from "../../interface";
+import { Injectable } from "@nestjs/common";
 import Review from "../models/Review";
-import { Repository } from "./Repository";
+import { Types } from "mongoose";
 
-class ReviewRepository extends Repository {
+@Injectable()
+export class ReviewRepository {
   /**
    * Get review detailswith given id.
    * @param objectId Review ObjectId.
    * @returns Returns review details object.
    */
-  public async getReview(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getReviewById(objectId: string): Promise<Review | null> {
     return Review.findById(objectId);
   }
 
@@ -18,8 +18,9 @@ class ReviewRepository extends Repository {
    * @param objectId - Review ObjectId.
    * @returns Returns Review details object.
    */
-  public async getReviewAndPopulate(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getReviewByIdAndPopulate(
+    objectId: string
+  ): Promise<Review | null> {
     return await Review.findById(objectId).populate("author", { name: 1 });
   }
 
@@ -28,9 +29,10 @@ class ReviewRepository extends Repository {
    * @param objectId - Product ObjectId.
    * @returns Returns reviews and reviews authors IDs.
    */
-  public async getProductReviews(objectId: string) {
-    this.validateObjectId(objectId);
-    return await Review.find({ product: objectId })
+  public async getProductReviews(
+    objectId: string
+  ): Promise<{ id?: string; author: Types.ObjectId }[]> {
+    return await Review.find({ product: new Types.ObjectId(objectId) })
       .select({ id: 1, author: 1 })
       .sort({
         createdAt: -1,
@@ -42,8 +44,9 @@ class ReviewRepository extends Repository {
    * @param objectId User ObjectId.
    * @returns Returns IDs of reviews.
    */
-  public async getReviewsMadeByUser(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getReviewsMadeByUser(
+    objectId: string
+  ): Promise<{ id?: string }[]> {
     return await Review.find({ author: objectId }).select({ id: 1 });
   }
 
@@ -52,8 +55,9 @@ class ReviewRepository extends Repository {
    * @param objectId User ID.
    * @returns Returns a array of reviews score.
    */
-  public async getEveryReviewFromUserProducts(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getEveryReviewFromUserProducts(
+    objectId: string
+  ): Promise<{ score: number }[]> {
     return Review.find({ productOwner: objectId }).select({
       score: 1,
     });
@@ -64,8 +68,10 @@ class ReviewRepository extends Repository {
    * @param authorId User ObjectId.
    * @param reviewData Review data such as score, text and product.
    */
-  public async createReview(authorId: string, reviewData: IReview) {
-    this.validateObjectId(authorId);
+  public async createReview(
+    authorId: string,
+    reviewData: ReviewDTO
+  ): Promise<void> {
     await Review.create({ ...reviewData, author: authorId });
   }
 
@@ -73,8 +79,7 @@ class ReviewRepository extends Repository {
    * Delete review with given id.
    * @param objectId Review ObjectId.
    */
-  public async deleteReview(objectId: string) {
-    this.validateObjectId(objectId);
+  public async deleteReview(objectId: string): Promise<void> {
     await Review.findByIdAndDelete(objectId);
   }
 
@@ -86,10 +91,7 @@ class ReviewRepository extends Repository {
   public async updateReview(
     objectId: string,
     updatedReviewData: { text: string; score: number }
-  ) {
-    this.validateObjectId(objectId);
+  ): Promise<void> {
     await Review.findByIdAndUpdate(objectId, updatedReviewData);
   }
 }
-
-export default new ReviewRepository();

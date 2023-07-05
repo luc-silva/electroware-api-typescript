@@ -1,29 +1,22 @@
 import User from "../models/User";
-import { Repository } from "./Repository";
 import { startSession } from "mongoose";
 import Product from "../models/Product";
 import Review from "../models/Review";
 import WishlistItem from "../models/WishlistItem";
 import ProductInstance from "../models/ProductInstance";
 import WishlistCollection from "../models/WishlistCollection";
-import { IUser } from "../../interface";
+import { Injectable } from "@nestjs/common";
 
-interface UpdatedUserData {
-  name?: { first: string; last: string };
-  location?: { state: string; country: string };
-  description?: string;
-  email?: string;
-  password?: string;
-}
-
-class UserRepository extends Repository {
+@Injectable()
+export class UserRepository {
   /**
    * Get user details without password and funds with given valid ObjectId.
    * @param objectId - User ObjectId.
    * @returns Returns user details object.
    */
-  public async getUser(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getUserById(
+    objectId: string
+  ): Promise<{ id?: string; funds: number } | null> {
     return await User.findById(objectId).select({ password: 0, funds: 0 });
   }
 
@@ -32,8 +25,9 @@ class UserRepository extends Repository {
    * @param objectId - User ObjectId.
    * @returns Returns user details object.
    */
-  public async getUserPrivateDetails(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getUserPrivateDetailsById(
+    objectId: string
+  ): Promise<{ id?: string; password: string; email: string } | null> {
     return await User.findById(objectId).select({ password: 1, email: 1 });
   }
 
@@ -42,8 +36,9 @@ class UserRepository extends Repository {
    * @param objectId - User ObjectId.
    * @returns Returns user details object.
    */
-  public async getUserEmailAndFunds(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getUserEmailAndFundsById(
+    objectId: string
+  ): Promise<{ id?: string; funds: number; email: string } | null> {
     return await User.findById(objectId).select({ email: 1, funds: 1 });
   }
 
@@ -52,11 +47,8 @@ class UserRepository extends Repository {
    * @param email - Email used to log in.
    * @returns Returns user details object.
    */
-  public async getUserInfoWithEmail(email: string) {
-    return await User.findOne({ email }).select({
-      location: 0,
-      description: 0,
-    });
+  public async getUserInfoByEmail(email: string): Promise<User | null> {
+    return await User.findOne({ email });
   }
 
   /**
@@ -64,7 +56,7 @@ class UserRepository extends Repository {
    * @param objectId - User id.
    * @returns Returns user products IDs.
    */
-  public async getUserProducts(objectId: string) {
+  public async getUserProducts(objectId: string): Promise<{ id?: string }[]> {
     return await Product.find({ owner: objectId }).select({
       id: 1,
     });
@@ -74,7 +66,7 @@ class UserRepository extends Repository {
    * Create User with given data.
    * @param newUserData - User data such as name, location, email and hashed password.
    */
-  public async createUser(newUserdata: IUser) {
+  public async createUser(newUserdata: User): Promise<void> {
     await User.create(newUserdata);
   }
 
@@ -85,10 +77,8 @@ class UserRepository extends Repository {
    */
   public async findUserAndUpdateDetails(
     objectId: string,
-    updatedUserData: UpdatedUserData
-  ) {
-    this.validateObjectId(objectId);
-
+    updatedUserData: Partial<UserDTO>
+  ): Promise<void> {
     await User.findByIdAndUpdate(objectId, updatedUserData);
   }
 
@@ -96,12 +86,10 @@ class UserRepository extends Repository {
    * Delete user account and related items with given valid ObjectId.
    * @param objectId - User ObjectId.
    */
-  public async deleteUserAccount(objectId: string) {
-    this.validateObjectId(objectId);
-
+  public async deleteUserAccount(objectId: string): Promise<void> {
     const session = await startSession();
     await session.withTransaction(async () => {
-      const user = await this.getUser(objectId);
+      const user = await this.getUserById(objectId);
       if (user) {
         await Product.deleteMany(
           { owner: user.id },
@@ -133,11 +121,9 @@ class UserRepository extends Repository {
    * Delete user account and related items with given id.
    * @param objectId - User ObjectId.
    */
-  public async addUserFunds(objectId: string, amount: number) {
+  public async addUserFunds(objectId: string, amount: number): Promise<void> {
     await User.findByIdAndUpdate(objectId, {
       $inc: { funds: +amount },
     });
   }
 }
-
-export default new UserRepository();

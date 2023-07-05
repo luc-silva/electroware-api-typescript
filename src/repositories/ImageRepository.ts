@@ -1,21 +1,17 @@
+import { Injectable } from "@nestjs/common";
 import ImageInstance from "../models/ImageInstance";
-import { Repository } from "./Repository";
+import { Types } from "mongoose";
 
-interface ImageData {
-  buffer: Buffer;
-  imageType: "productImage" | "userImage";
-}
-
-class ImageRepository extends Repository {
+@Injectable()
+export class ImageRepository {
   /**
    * Get use image with given user id.
    * @param objectId - User ObjectId.
    * @returns Returns image data object.
    */
-  public async getUserImage(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getUserImage(objectId: string): Promise<ImageInstance | null> {
     return await ImageInstance.findOne({
-      user: objectId,
+      user: new Types.ObjectId(objectId),
       imageType: "userImage",
     });
   }
@@ -25,10 +21,11 @@ class ImageRepository extends Repository {
    * @param objectId - Product ObjectId.
    * @returns Returns image data object.
    */
-  public async getProductImage(objectId: string) {
-    this.validateObjectId(objectId);
+  public async getProductImage(
+    objectId: string
+  ): Promise<ImageInstance | null> {
     return await ImageInstance.findOne({
-      product: objectId,
+      product: new Types.ObjectId(objectId),
       imageType: "productImage",
     });
   }
@@ -39,12 +36,14 @@ class ImageRepository extends Repository {
      *@param imageData - data containg image file buffer and image type. 
      imageType should be productImage or userImage.
      */
-  public async createImage(objectId: string, { imageType, buffer }: ImageData) {
-    this.validateObjectId(objectId);
+  public async createImage(
+    objectId: string,
+    { imageType, data }: ImageInstanceDTO
+  ): Promise<void> {
     await ImageInstance.create({
       user: objectId,
       imageType,
-      data: buffer,
+      data,
       imageName: `${objectId}`,
     });
   }
@@ -54,9 +53,10 @@ class ImageRepository extends Repository {
    *@param objectId - ImageInstance ObjectId.
    *@param imageData - data containg image file buffer and image type.
    */
-  public async updateImage(objectId: string, imageData: ImageData) {
+  public async updateImage(
+    objectId: string,
+    imageData: ImageInstanceDTO
+  ): Promise<void> {
     await ImageInstance.findByIdAndUpdate(objectId, imageData);
   }
 }
-
-export default new ImageRepository();
