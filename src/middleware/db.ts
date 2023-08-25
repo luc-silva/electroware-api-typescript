@@ -1,12 +1,18 @@
 import mongoose from "mongoose";
 
 export async function connectDB() {
-  try {
-    const connectionString = "mongodb+srv://lucasAdmin:lucas1353@cluster0.oximzo5.mongodb.net/project_electroware?retryWrites=true&w=majority";
-    await mongoose.connect(connectionString ).then(() => {
-      console.log(`Database connected`);
-    });
-  } catch (error: any) {
-    throw new Error(error);
+  const connectionString = process.env.MONGO_CONNECTION_STRING;
+
+  if (!connectionString) {
+    throw new Error("Connection string required.");
   }
+  await mongoose.connect(connectionString);
+
+  mongoose.connection.on("connected", () => {
+    console.log(`Database connected`);
+  });
+
+  mongoose.connection.on("error", (e) => {
+    throw new Error(e);
+  });
 }
