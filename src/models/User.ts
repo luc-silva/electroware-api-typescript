@@ -3,8 +3,8 @@ import { Schema, model } from "mongoose";
 const UserSchema = new Schema(
   {
     name: {
-      first: { type: String, maxlength: 10, required: true },
-      last: { type: String, maxlength: 10 },
+      first: { type: String, maxlength: 15, required: true },
+      last: { type: String, maxlength: 15 },
     },
     location: {
       state: { type: String, required: true },
